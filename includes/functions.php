@@ -226,17 +226,21 @@ function pmpro_up_try_to_get_wallet( $user_id = null ) {
 		$user_id = $current_user->ID;
 	}
 
-	// If user ID still empty, bail.
-	if ( empty( $user_id ) ) {
-		return false;
-	}
+	$wallet = '';
 
-	// Let's try get their meta values now.
-	$wallet = get_user_meta( $user_id, 'pmpro_unlock_wallet', true );
+	// If user ID isn't empty, try to get wallet from meta.
+	if ( ! empty( $user_id ) ) {
+		// Let's try get their meta values now.
+		$wallet = get_user_meta( $user_id, 'pmpro_unlock_wallet', true );
+		
+		/// Look into this logic.
+		if ( empty( $wallet ) ) {
+			$wallet = get_user_meta( $user_id, 'ethereum_address', true ); // Take a chance here, if they had Unlock Protocol installed prior sync to that.
+		}
+	}
 	
-	/// Look into this logic.
-	if ( empty( $wallet ) ) {
-		$wallet = get_user_meta( $user_id, 'ethereum_address', true ); // Take a chance here, if they had Unlock Protocol installed prior sync to that.
+	if ( empty( $wallet ) && ! empty( $_REQUEST['code'] ) ) {
+		$wallet = pmpro_up_validate_auth_code( sanitize_text_field( $_REQUEST['code'] ) );
 	}
 
 	return $wallet;

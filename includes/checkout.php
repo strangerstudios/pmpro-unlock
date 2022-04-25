@@ -121,32 +121,24 @@ function pmpro_up_registration_checks( $continue ) {
     $level_lock_options = get_option( 'pmpro_unlock_protocol_' . $level_id, true );
 
     // Level doesn't require NFT, network not selected, just bail quietly.
-    if ( empty( $level_lock_options ) || $level_lock_options['network'] === '' || $level_lock_options['network'] === 'No' ) {
+    if ( empty( $level_lock_options ) || $level_lock_options['network'] === '' || $level_lock_options['nft_required'] === 'No' ) {
         return $continue;
     }
 
-    // Check if we have a wallet and it's a valid one. ///TODO we could probably abstract this further to pmpro_up_get_wallet method (Via CODE or USER META).
-    if ( $_REQUEST['code'] ) {
-        try {
-
-        $wallet = pmpro_up_validate_auth_code( $_REQUEST['code'] );
-
-    } catch ( \Throwable $e) {
-        /// Die quietly for now.
-    }
+    $wallet = pmpro_up_try_to_get_wallet();
     
     // Let's see if they have access to the lock now.
     $check_lock = pmpro_up_validate_lock( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
     if ( is_wp_error( $check_lock ) || ! isset( $check_lock['result'] ) ) {
         $continue = false;
     }
+
     $continue = hexdec( $check_lock['result'] ) == 1;
 
     if ( ! $continue ) {
         pmpro_setMessage( 'You need an NFT bro!', 'pmpro_error' );
     }
-    return $continue;
-} /// End of Try catch.
 
+    return $continue;
 }
 add_filter( 'pmpro_registration_checks', 'pmpro_up_registration_checks' );
