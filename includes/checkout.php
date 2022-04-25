@@ -8,14 +8,13 @@ function pmpro_up_add_wallet_to_checkout() {
     global $pmpro_level;
     $level_id = $pmpro_level->id;
 
-    $wallet = pmpro_up_check_save_wallet();
-    // Check if we have a wallet ID or not.
-    if ( ! $wallet ) {
-        echo pmpro_up_connect_wallet_button();
+    $wallet = pmpro_up_check_save_wallet(); // Get and save the wallet possibly.
 
-        // Check codes and stuff and save to SESSION?
+    // Check if we have a wallet ID or not.
+    if ( is_wp_error( $wallet ) || ! $wallet ) {
+        echo pmpro_up_connect_wallet_button();
     } else {
-        echo "We've got a wallet address" . $wallet; /// Remove this later.
+        echo "<p>We've got a wallet address" . $wallet . "</p>"; /// Remove this later.
 
         $level_lock_options = get_option( 'pmpro_unlock_protocol_' . $level_id, true );
         // Let's check the validate lock status.
@@ -48,10 +47,10 @@ add_action( 'pmpro_checkout_after_pricing_fields', 'pmpro_up_add_wallet_to_check
 function pmpro_up_save_wallet_after_level_change( $level_id, $user_id, $cancel_level ) {
     // Try to save user's wallet after they're given a level.
     pmpro_up_check_save_wallet( $user_id );
+    pmpro_unset_session_var( 'code' ); // Remove any session VAR that may be there.
 }
 add_action( 'pmpro_after_change_membership_level', 'pmpro_up_save_wallet_after_level_change', 10, 3 );
 
-/// Important Function
 /**
  * Bypass level pricing if they have an NFT.
  *
@@ -67,17 +66,12 @@ function pmpro_up_checkout_level( $checkout_level ) {
         return $checkout_level;
     }
 
+    $wallet = pmpro_up_try_to_get_wallet();
     // Figure out how to get the wallet address.
-    if ( is_user_logged_in() ) {
-        global $current_user;
-        $wallet = pmpro_up_check_save_wallet( $current_user->ID, '' );
-    } elseif ( isset( $_REQUEST['code'] ) ) {
-        $wallet = pmpro_up_check_save_wallet( '', sanitize_text_field( $_REQUEST['code'] ) ); // Check the code value.
-    } else {
+    if ( is_wp_error( $wallet ) || ! $wallet ) {
         return $checkout_level; /// Unable to authenticate wallet whatsoever - just bail.
     }
-
-    /// EXTRACT THIS functionality.
+       
     // Let's see if they have access to the lock now.
     $check_lock = pmpro_up_validate_lock( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
     

@@ -41,7 +41,7 @@ function pmpro_up_get_checkout_url( $lock, $redirect_uri ) {
     $lock_obj[$lock] = array( 'network' => 4 );
 
 		$paywall_config = apply_filters(
-			'unlock_protocol_paywall_config',
+			'pmpro_unlock_protocol_paywall_config',
 			array(
 				'locks'       => $lock_obj,
 				'pessimistic' => true,
@@ -67,38 +67,35 @@ function pmpro_up_get_checkout_url( $lock, $redirect_uri ) {
  * @return void
  */
 function pmpro_up_validate_auth_code( $code ) {
-		$params = apply_filters(
-			'unlock_protocol_validate_auth_code_params',
-			array(
-				'grant_type'   => 'authorization_code',
-				'client_id'    => pmpro_up_get_client_id(),
-				'redirect_uri' => pmpro_up_get_redirect_uri(),
-				'code'         => sanitize_text_field( $code ),
-			)
-		);
+	$params = apply_filters(
+		'pmpro_unlock_protocol_validate_auth_code_params',
+		array(
+			'grant_type'   => 'authorization_code',
+			'client_id'    => pmpro_up_get_client_id(),
+			'redirect_uri' => pmpro_up_get_redirect_uri(),
+			'code'         => sanitize_text_field( $code ),
+		)
+	);
 
-		$args = array(
-			'body'        => $params,
-			'redirection' => '30',
-		);
+	$args = array(
+		'body'        => $params,
+		'redirection' => '30',
+	);
 
-		$response = wp_remote_post( esc_url( PMPRO_UNLOCK_AUTH ), $args );
+	$response = wp_remote_post( esc_url( PMPRO_UNLOCK_AUTH ), $args );
 
-		if ( is_wp_error( $response ) ) {
-			return new \WP_Error( 'unlock_validate_auth_code', $response );
-		}
-
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( ! array_key_exists( 'me', $body ) ) {
-			return new \WP_Error( 'unlock_validate_auth_code', __( 'Invalid Account', 'unlock-protocol' ) );
-		}
-
-		return $body['me'];
+	if ( is_wp_error( $response ) ) {
+		return new \WP_Error( 'unlock_validate_auth_code', $response );
 	}
 
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
+	if ( ! array_key_exists( 'me', $body ) ) {
+		return new \WP_Error( 'unlock_validate_auth_code', __( 'Invalid Account', 'unlock-protocol' ) );
+	}
 
+	return $body['me'];
+}
 
 /// TODO: Cache results for a little bit and figure out the param calls etc.
 /**
@@ -130,7 +127,7 @@ function pmpro_up_validate_lock( $network, $lock_address, $wallet = null ) {
 					),
 					'latest',
 				),
-				'id'      => 31337, //Local Host Chain ID.
+				'id'      => 31337,
 				'jsonrpc' => '2.0',
 			)
 		);
@@ -160,31 +157,23 @@ function pmpro_up_validate_lock( $network, $lock_address, $wallet = null ) {
 function pmpro_up_connect_wallet_button() {
     $url = pmpro_up_get_login_url( get_permalink() );
 ?>
-    <div class='pmpro-unlock-protocol-login-container'>
-        <a href="<?php echo esc_url( $url ); ?>" rel="nofollow" class="pmpro-unlock-protocol-connect-button">Connect Your Crypto Wallet</a>
+    <div class='pmpro-unlock-protocol-login-container' style="padding: 10px;">
+        <a href="<?php echo esc_url( $url ); ?>" rel="nofollow" class="pmpro-unlock-protocol-connect-button" style="background-color: black;color:white;padding:1em;"><?php esc_html_e( 'Connect Your Crypto Wallet', 'pmpro-unlock' ); ?></a>
     </div>
 <?php
 }
 
+
+/// Change to SET method.
 /**
  * Validate wallet and store to usermeta for later use so we don't have to make API calls all the time.
- * /// Important function.
+ * 
+ * @return string|bool $wallet The user's recently saved wallet address. Returns false if no wallet address is found/saved.
  */
 function pmpro_up_check_save_wallet( $user_id = null, $code = null ) {
-    
 	// Let's check code from REQUEST param or SESSION.
     if ( empty( $code ) ) {
-
-		if ( pmpro_get_session_var( 'code' ) ) {
-			$code = sanitize_text_field( pmpro_get_session_var( 'code' ) );
-		}
-		
-		// If it's not available from SESSION but REQUEST param is available.
-		if ( empty( $code ) && isset( $_REQUEST['code'] ) ) {
-			$code = sanitize_text_field( $_REQUEST['code'] );
-			pmpro_set_session_var( 'code', $code );
-		}
-
+		$code = pmpro_up_get_auth_code();
     }
 
     $wallet = false; // Default value.
@@ -196,17 +185,18 @@ function pmpro_up_check_save_wallet( $user_id = null, $code = null ) {
     }
 
     // Try to get wallet from meta if we have their ID.
-    if ( ! empty( $user_id ) ) {
+    if ( ! empty( $user_id ) && ! $code ) {
         $wallet = get_user_meta( $user_id, 'pmpro_unlock_wallet', true ); // Try to get it from user meta if we know they're logged in.
     }
 
     // Let's try save/update the wallet to user meta for reference if we see a 'code' query param
-    if ( ! empty( $code ) ) {
+    if ( $code ) {
         $wallet = pmpro_up_validate_auth_code( $code );
 
         if ( ! is_wp_error( $wallet ) && $user_id ) {
            update_user_meta( $user_id, 'pmpro_unlock_wallet', $wallet ); // Update wallet even if it's false, let's assume for now that people might be unlinking their wallet.
         } elseif ( is_wp_error( $wallet ) ) {
+			pmpro_unset_session_var( 'code' );
             $wallet = $wallet->get_error_message(); /// Maybe return false?
         }
     }
@@ -214,6 +204,7 @@ function pmpro_up_check_save_wallet( $user_id = null, $code = null ) {
     return $wallet;
 }
 
+/// Change to GET method.
 /**
  * Helper function to try and get a stored wallet address for the user. Fallsback to Unlock Protocol Meta.
  *
@@ -238,10 +229,36 @@ function pmpro_up_try_to_get_wallet( $user_id = null ) {
 			$wallet = get_user_meta( $user_id, 'ethereum_address', true ); // Take a chance here, if they had Unlock Protocol installed prior sync to that.
 		}
 	}
-	
-	if ( empty( $wallet ) && ! empty( $_REQUEST['code'] ) ) {
-		$wallet = pmpro_up_validate_auth_code( sanitize_text_field( $_REQUEST['code'] ) );
+
+	$code = pmpro_up_get_auth_code();
+
+	if ( empty( $wallet ) && $code ) {
+		$wallet = pmpro_up_validate_auth_code( $code );
 	}
 
 	return $wallet;
+}
+
+/// Function to get the $code value from request or session. TODO: Check nonce too.
+/**
+ * Helper function to try and get the auth code from either session or query params.
+ *
+ * @return string $code The oAuth code when connecting a wallet.
+ */
+function pmpro_up_get_auth_code() {
+	$code = '';
+
+	// Let's try to overwrite any session data with REQUEST param stuff.
+	if ( isset( $_REQUEST['code' ] ) ) {
+		pmpro_unset_session_var( 'code' ); // Let's try unset any SESSION data we might have.
+		$code = sanitize_text_field( $_REQUEST['code'] );
+		pmpro_set_session_var( 'code', $code );
+	}
+
+	// try get it from the session.
+	if ( empty( $code ) ) {
+		$code = pmpro_get_session_var( 'code' );
+	}
+
+	return $code;
 }
