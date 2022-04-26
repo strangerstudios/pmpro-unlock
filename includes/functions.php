@@ -230,10 +230,11 @@ function pmpro_up_try_to_get_wallet( $user_id = null ) {
 		}
 	}
 
-	$code = pmpro_up_get_auth_code();
-
-	if ( empty( $wallet ) && $code ) {
-		$wallet = pmpro_up_validate_auth_code( $code );
+	if ( empty( $wallet ) ) {
+		$code = pmpro_up_get_auth_code();	
+		if ( $code ) {
+			$wallet = pmpro_up_validate_auth_code( $code );
+		}
 	}
 
 	return $wallet;
@@ -262,3 +263,37 @@ function pmpro_up_get_auth_code() {
 
 	return $code;
 }
+
+/**
+ * Checking to ensure the member still has access to the NFT periodically. If they don't, set it to false.
+ *
+ * @return bool $has_level A boolean value to check if a user should have a level or not.
+ */
+function pmpro_up_has_membership_level( $has_level, $user_id, $levels ) {
+	// if they don't have access already, just bail.
+	if ( ! $has_level ) {
+		return $has_level;
+	}
+
+	$level = pmpro_getMembershipLevelForUser( $user_id );
+	$level_id = $level->ID;
+
+	$level_lock_options = get_option( 'pmpro_unlock_protocol_' . $level_id, true );
+	$wallet = pmpro_up_try_to_get_wallet( $user_id );
+
+	// If no wallet is found, let's leave it to PMPro to handle.
+	if ( empty( $level_lock_options ) || empty( $wallet ) ) { /// Improve this check here.
+		return $has_level;
+	}
+
+	// Check if they have lock access.
+	$check_lock = pmpro_up_validate_lock( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
+	
+	// If they hold an active NFT, bail.
+	if ( hexdec( $check_lock['result'] ) !== 1 ) {
+		$has_level = false;
+	}
+
+	return $has_level;
+}
+add_filter( 'pmpro_has_membership_level', 'pmpro_up_has_membership_level', 10, 3 );
