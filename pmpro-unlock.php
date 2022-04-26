@@ -19,7 +19,13 @@ define( 'PMPROUP_BASENAME', plugin_basename( __FILE__ ) );
 
 // Includes
 require_once( PMPROUP_DIR . '/includes/membership-level-settings.php' );
+
 require_once( PMPROUP_DIR . '/includes/functions.php' );
+
 require_once( PMPROUP_DIR . '/includes/profile.php' );
+
 require_once( PMPROUP_DIR . '/includes/checkout.php' );
+
 require_once( PMPROUP_DIR . '/includes/defaults.php' );
+
+require_once( PMPROUP_DIR . '/includes/login.php' );

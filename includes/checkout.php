@@ -18,17 +18,9 @@ function pmpro_up_add_wallet_to_checkout() {
 
         $level_lock_options = get_option( 'pmpro_unlock_protocol_' . $level_id, true );
         // Let's check the validate lock status.
-        $check_lock = pmpro_up_validate_lock( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
-    
-        // There was an error, don't adjust the level.
-        if ( is_wp_error( $check_lock ) || ! isset( $check_lock['result'] ) ) {
-            echo "There was a problem checking the lock right now";
-            return;
-        }
+        $check_lock = pmpro_up_has_lock_access( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
 
-        $okay = hexdec( $check_lock['result'] ) == 1;
-
-        if ( $okay ) {
+        if ( $check_lock ) {
             echo pmpro_setMessage( 'ALL GOOD', 'pmpro_success'); ///Change this later on.
         } else { ///Look at this too.
             $redirect_uri = get_permalink() . '?level=' . $level_id;
@@ -36,7 +28,6 @@ function pmpro_up_add_wallet_to_checkout() {
             echo "You can purchase this NFT <a href='" . $checkout_url . "'>Click here to buy the NFT</a>"; /// Build Checkout URL here, maybe check level options if NFT is totally required.
         }
     }
-
 }
 add_action( 'pmpro_checkout_after_pricing_fields', 'pmpro_up_add_wallet_to_checkout' );
 
@@ -73,16 +64,9 @@ function pmpro_up_checkout_level( $checkout_level ) {
     }
        
     // Let's see if they have access to the lock now.
-    $check_lock = pmpro_up_validate_lock( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
-    
-    // There was an error, don't adjust the level.
-    if ( is_wp_error( $check_lock ) || ! isset( $check_lock['result'] ) ) {
-        return $checkout_level;
-    }
+    $check_lock = pmpro_up_has_lock_access( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
 
-    $okay = hexdec( $check_lock['result'] ) == 1;
-
-    if ( $okay ) {
+    if ( $check_lock ) {
         $checkout_level->initial_payment = '0';
         $checkout_level->billing_amount = '0';
         $checkout_level->cycle_number = '0';
@@ -122,15 +106,10 @@ function pmpro_up_registration_checks( $continue ) {
     $wallet = pmpro_up_try_to_get_wallet();
     
     // Let's see if they have access to the lock now.
-    $check_lock = pmpro_up_validate_lock( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
-    if ( is_wp_error( $check_lock ) || ! isset( $check_lock['result'] ) ) {
-        $continue = false;
-    }
-
-    $continue = hexdec( $check_lock['result'] ) == 1;
-
+    $continue = pmpro_up_has_lock_access( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
+    
     if ( ! $continue ) {
-        pmpro_setMessage( 'You need an NFT bro!', 'pmpro_error' );
+        pmpro_setMessage( 'You need an NFT bro!', 'pmpro_error' ); // Change this.
     }
 
     return $continue;

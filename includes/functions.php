@@ -152,7 +152,6 @@ function pmpro_up_validate_lock( $network, $lock_address, $wallet = null ) {
 
 /**
  * Generate a button to connect wallet to Unlock Protocol.
- * /// Important Function and Style the button!
  */
 function pmpro_up_connect_wallet_button() {
     $url = pmpro_up_get_login_url( get_permalink() );
@@ -287,13 +286,60 @@ function pmpro_up_has_membership_level( $has_level, $user_id, $levels ) {
 	}
 
 	// Check if they have lock access.
-	$check_lock = pmpro_up_validate_lock( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
+	$check_lock = pmpro_up_has_lock_access( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
 	
-	// If they hold an active NFT, bail.
-	if ( hexdec( $check_lock['result'] ) !== 1 ) {
+	// If they hold an active NFT, deny access.
+	if ( ! $check_lock ) {
 		$has_level = false;
 	}
 
 	return $has_level;
 }
 add_filter( 'pmpro_has_membership_level', 'pmpro_up_has_membership_level', 10, 3 );
+
+/**
+ * Undocumented function
+ *
+ * @param string $network The Network RCP Endpoint.
+ * @param string $lock The lock's address (contract address).
+ * @param string $wallet The user's crypto wallet address.
+ * @return bool $has_lock_access Check Unlock Protocols network to ensure the wallet address has access to a lock.
+ */
+function pmpro_up_has_lock_access( $network, $lock, $wallet ) {
+
+	$network = sanitize_text_field( $network );
+	$lock = sanitize_text_field( $lock );
+	$wallet = sanitize_text_field( $wallet );
+
+	$check_lock = pmpro_up_validate_lock( $network, $lock, $wallet );
+
+	$has_lock_access = false;
+
+	if ( ! is_wp_error( $check_lock ) && hexdec( $check_lock['result'] ) == 1 ) {
+		$has_lock_access = true;
+	}
+
+	return apply_filters( 'pmpro_up_has_lock_access', $has_lock_access, $network, $lock, $wallet );
+}
+
+/**
+ * Function to get the user account linked to a wallet address that's stored in meta.
+ *
+ * @param [type] $wallet
+ * @return object|bool $user Returns the user object or false if the user isn't found.
+ */
+function pmpro_up_get_user_by_wallet( $wallet ) {
+	$args = array(
+		'meta_key'     => 'pmpro_unlock_wallet',
+		'meta_value'   => sanitize_text_field( $wallet ),
+		'meta_compare' => '=',
+	);
+
+	$user_query = new \WP_User_Query( $args );
+	$users      = $user_query->get_results();
+	if ( ! empty( $users ) ) {
+		return $users[0];
+	}
+
+	return false;
+}
