@@ -164,7 +164,13 @@ function pmpro_up_validate_lock( $network, $lock_address, $wallet = null ) {
  * Generate a button to connect wallet to Unlock Protocol.
  */
 function pmpro_up_connect_wallet_button() {
-    $url = pmpro_up_get_login_url( get_permalink() );
+	if ( is_admin() ) {
+		$redirect_uri = admin_url( basename( $_SERVER['REQUEST_URI'] ) );
+	} else {
+		$redirect_uri = get_permalink();
+	}
+	
+    $url = pmpro_up_get_login_url( esc_url( $redirect_uri ) );
 ?>
     <div class='pmpro-unlock-protocol-login-container' style="padding: 10px;">
         <a href="<?php echo esc_url( $url ); ?>" rel="nofollow" class="pmpro-unlock-protocol-connect-button" style="background-color: black;color:white;padding:1em;"><?php esc_html_e( 'Connect Your Crypto Wallet', 'pmpro-unlock' ); ?></a>

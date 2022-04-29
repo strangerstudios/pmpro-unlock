@@ -16,5 +16,5 @@ function pmpro_up_profile_connect_wallet( $user ) {
         echo "<p>Your Wallet Address is: " . $wallet_address . "</p>";
     }
 }
-add_action( 'edit_user_profile', 'pmpro_up_profile_connect_wallet', 10, 1 );
 add_action( 'pmpro_show_user_profile', 'pmpro_up_profile_connect_wallet', 10, 1 );
+add_action( 'pmpro_after_membership_level_profile_fields', 'pmpro_up_profile_connect_wallet', 10, 1 );

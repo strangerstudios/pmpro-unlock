@@ -99,7 +99,7 @@ function pmpro_up_registration_checks( $continue ) {
     $level_lock_options = get_option( 'pmpro_unlock_protocol_' . $level_id, true );
 
     // Level doesn't require NFT, network not selected, just bail quietly.
-    if ( empty( $level_lock_options ) || $level_lock_options['network'] === '' || $level_lock_options['nft_required'] === 'No' ) {
+    if ( empty( $level_lock_options ) || ! is_array( $level_lock_options ) || $level_lock_options['network'] === '' || $level_lock_options['nft_required'] === 'No' ) {
         return $continue;
     }
 
