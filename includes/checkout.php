@@ -109,7 +109,7 @@ function pmpro_up_registration_checks( $continue ) {
     $continue = pmpro_up_has_lock_access( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
     
     if ( ! $continue ) {
-        pmpro_setMessage( 'You need an NFT bro!', 'pmpro_error' ); // Change this.
+        pmpro_setMessage( 'You need an NFT to claim this membership', 'pmpro_error' ); // Change this.
     }
 
     return $continue;
