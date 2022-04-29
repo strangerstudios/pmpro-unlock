@@ -22,9 +22,9 @@ function pmpro_up_authenticate_via_wallet( $user ) {
 		}
 
 		$code  = sanitize_text_field( $_REQUEST['code'] );
-		$state = sanitize_text_field( $_REQUEST['pmpro_state'] );
+		$state = sanitize_text_field( $_REQUEST['state'] );
 
-		if ( '' === $code ) {
+		if ( '' === $code || ! wp_verify_nonce( $state, 'pmpro_unlock_state') ) {
 			return $user;
 		}
 

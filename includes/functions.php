@@ -25,7 +25,7 @@ function pmpro_up_get_login_url( $redirect_uri = null ) {
 		array(
 			'client_id'    => pmpro_up_get_client_id(),
 			'redirect_uri' => $redirect_uri ? $redirect_uri : pmpro_up_get_redirect_uri(),
-			'pmpro_state'  => wp_create_nonce( 'pmpro_unlock_login_state' ),
+			'state'  => wp_create_nonce( 'pmpro_unlock_state' ),
 		),
 		PMPRO_UNLOCK_CHECKOUT
 	);
@@ -74,6 +74,7 @@ function pmpro_up_validate_auth_code( $code ) {
 			'client_id'    => pmpro_up_get_client_id(),
 			'redirect_uri' => pmpro_up_get_redirect_uri(),
 			'code'         => sanitize_text_field( $code ),
+			'state'		=> sanitize_text_field( $_REQUEST['state'] )
 		)
 	);
 
@@ -81,6 +82,15 @@ function pmpro_up_validate_auth_code( $code ) {
 		'body'        => $params,
 		'redirection' => '30',
 	);
+
+	// If the nonce isn't available or failed to verify stop.
+	if ( ! $params['state'] ) {
+		return false;
+	} else {
+		if ( ! wp_verify_nonce( $params['state'], 'pmpro_unlock_state' ) ) {
+			return false;
+		}
+	}
 
 	$response = wp_remote_post( esc_url( PMPRO_UNLOCK_AUTH ), $args );
 
@@ -194,6 +204,7 @@ function pmpro_up_check_save_wallet( $user_id = null, $code = null ) {
 
         if ( ! is_wp_error( $wallet ) && $user_id ) {
            update_user_meta( $user_id, 'pmpro_unlock_wallet', $wallet ); // Update wallet even if it's false, let's assume for now that people might be unlinking their wallet.
+		   pmpro_unset_session_var( 'code' );
         } elseif ( is_wp_error( $wallet ) ) {
 			pmpro_unset_session_var( 'code' );
             $wallet = $wallet->get_error_message(); /// Maybe return false?
