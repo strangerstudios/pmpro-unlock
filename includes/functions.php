@@ -36,14 +36,16 @@ function pmpro_up_get_login_url( $redirect_uri = null ) {
 //Generate the purchase URL for the level.
 function pmpro_up_get_checkout_url( $lock, $redirect_uri ) {
 
-    $lock_obj = array();
+	// Build the checkout array to buy the NFT.
+    $lock_checkout = array();
 
-    $lock_obj[$lock] = array( 'network' => 4 );
+	$lock_address = $lock['lock_address'];
+	$lock_checkout[$lock_address] = array( 'network' => $lock['network_id'] );
 
 		$paywall_config = apply_filters(
 			'pmpro_unlock_protocol_paywall_config',
 			array(
-				'locks'       => $lock_obj,
+				'locks'       => $lock_checkout,
 				'pessimistic' => true,
 			)
 		);
@@ -55,6 +57,7 @@ function pmpro_up_get_checkout_url( $lock, $redirect_uri ) {
 			),
 			PMPRO_UNLOCK_CHECKOUT
 		);
+
 
     return $checkout_url;
 }
@@ -303,7 +306,7 @@ function pmpro_up_has_membership_level( $has_level, $user_id, $levels ) {
 	}
 
 	// Check if they have lock access.
-	$check_lock = pmpro_up_has_lock_access( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
+	$check_lock = pmpro_up_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
 	
 	// If they hold an active NFT, deny access.
 	if ( ! $check_lock ) {

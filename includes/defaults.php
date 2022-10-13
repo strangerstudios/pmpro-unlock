@@ -12,6 +12,11 @@ function pmpro_up_networks_list() {
 				'network_id'           => 1,
 				'network_rpc_endpoint' => 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
 			),
+			'goerli' => array(
+				'network_name'         => 'goerli',
+				'network_id'           => 5,
+				'network_rpc_endpoint' => 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+			),
 			'ropsten'  => array(
 				'network_name'         => 'ropsten',
 				'network_id'           => 3,

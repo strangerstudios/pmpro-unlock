@@ -19,7 +19,7 @@ function pmpro_up_level_settings() {
     // Get level settings and configure variables to be used.
     $pmpro_unlock_settings = get_option( 'pmpro_unlock_protocol_' . $level_id );
     if ( is_array( $pmpro_unlock_settings ) ) {
-        $network_value = $pmpro_unlock_settings['network'];
+        $network_value = $pmpro_unlock_settings['network_name'];
         $lock_address_value = $pmpro_unlock_settings['lock_address'];
         $nft_required = $pmpro_unlock_settings['nft_required'];
     } else {
@@ -42,7 +42,7 @@ function pmpro_up_level_settings() {
                     <select name="pmpro-unlock-network" id="pmpro-unlock-network">
                     <?php
                         foreach ( $networks as $network ) {
-                            echo "<option value='" . esc_attr( $network['network_rpc_endpoint'] ) . "' " . selected( $network_value, $network['network_rpc_endpoint'], false ) . ">" . esc_html( $network['network_name'] ) . "</option>";
+                            echo "<option value='" . esc_attr( $network['network_name'] ) . "' " . selected( $network_value, $network['network_name'], false ) . ">" . esc_html( $network['network_name'] ) . "</option>";
                         }
                     ?>
                     </select>
@@ -78,11 +78,19 @@ function pmpro_up_save_membership_level( $level_id ) {
 		return;
 	}
 
+    $available_networks = pmpro_up_networks_list();
     $network = sanitize_text_field( $_REQUEST['pmpro-unlock-network'] );
     $lock_address = sanitize_text_field( $_REQUEST['pmpro-unlock-lock' ] );
     $nft_required = sanitize_text_field( $_REQUEST['pmpro-unlock-nft-required'] );
 
-    $pmpro_unlock_settings = array( 'network' => $network, 'lock_address' => $lock_address, 'nft_required' => $nft_required );
+    // Save the entire network details for this lock.
+    $pmpro_unlock_settings = array( 'network_name' => $network, 'lock_address' => $lock_address, 'nft_required' => $nft_required );
+
+    // Make sure the network settings actually exist and add them to the array.
+    if ( ! empty( $network ) && isset( $available_networks[$network] ) ) {
+        $pmpro_unlock_settings['network_rpc'] = $available_networks[$network]['network_rpc_endpoint'];
+        $pmpro_unlock_settings['network_id'] = $available_networks[$network]['network_id'];
+    }
 
     // Save or delete options during level save.
     if ( $network ) {

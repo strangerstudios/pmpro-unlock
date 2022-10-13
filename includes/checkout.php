@@ -17,14 +17,15 @@ function pmpro_up_add_wallet_to_checkout() {
         echo "<p>We've got a wallet address" . $wallet . "</p>"; /// Remove this later.
 
         $level_lock_options = get_option( 'pmpro_unlock_protocol_' . $level_id, true );
+
         // Let's check the validate lock status.
-        $check_lock = pmpro_up_has_lock_access( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
+        $check_lock = pmpro_up_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
 
         if ( $check_lock ) {
             echo pmpro_setMessage( 'ALL GOOD', 'pmpro_success'); ///Change this later on.
         } else { ///Look at this too.
             $redirect_uri = get_permalink() . '?level=' . $level_id;
-            $checkout_url = pmpro_up_get_checkout_url( $level_lock_options['lock_address'], $redirect_uri );
+            $checkout_url = pmpro_up_get_checkout_url( $level_lock_options, $redirect_uri );
             echo "You can purchase this NFT <a href='" . $checkout_url . "'>Click here to buy the NFT</a>"; /// Build Checkout URL here, maybe check level options if NFT is totally required.
         }
     }
@@ -64,7 +65,7 @@ function pmpro_up_checkout_level( $checkout_level ) {
     }
        
     // Let's see if they have access to the lock now.
-    $check_lock = pmpro_up_has_lock_access( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
+    $check_lock = pmpro_up_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
 
     if ( $check_lock ) {
         $checkout_level->initial_payment = '0';
@@ -99,14 +100,14 @@ function pmpro_up_registration_checks( $continue ) {
     $level_lock_options = get_option( 'pmpro_unlock_protocol_' . $level_id, true );
 
     // Level doesn't require NFT, network not selected, just bail quietly.
-    if ( empty( $level_lock_options ) || ! is_array( $level_lock_options ) || $level_lock_options['network'] === '' || $level_lock_options['nft_required'] === 'No' ) {
+    if ( empty( $level_lock_options ) || ! is_array( $level_lock_options ) || $level_lock_options['network_rpc'] === '' || $level_lock_options['nft_required'] === 'No' ) {
         return $continue;
     }
 
     $wallet = pmpro_up_try_to_get_wallet();
     
     // Let's see if they have access to the lock now.
-    $continue = pmpro_up_has_lock_access( $level_lock_options['network'], $level_lock_options['lock_address'], $wallet );
+    $continue = pmpro_up_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
     
     if ( ! $continue ) {
         pmpro_setMessage( 'You need an NFT to claim this membership', 'pmpro_error' ); // Change this.
