@@ -21,7 +21,7 @@ For detailed installation steps, visit the [documentation](https://linktoplugin.
 If you find an issue/bug, let us know by [creating a detailed GitHub issue](https://github.com/strangerstudios/pmpro-unlock/issues/new).
 
 ## Support ##
-This is a developer's portal for Paid Memberships Pro - Unlock Protocol. We do not offer support on this channel. **Any support related questions should be directed to [linktoplugin.com](https://linktoplugin.com).**
+This is a developer's portal for Paid Memberships Pro - Unlock Protocol. We do not offer support on this channel. **Any support related questions should be directed to [paidmembershipspro.com/support](https://paidmembershipspro.com/support).**
 
 ## Contributing to Paid Memberships Pro - Unlock Protocol ##
 We encourage and welcome any contribution to Paid Memberships Pro - Unlock Protocol. Please read the [guidelines for contributing](https://github.com/strangerstudios/pmpro-unlock/blob/dev/.github/CONTRIBUTING.md) to this repository.
