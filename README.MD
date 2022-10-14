@@ -1,4 +1,4 @@
-<!-- ![](pmpro-unlock-banner.png) -->
+![](pmpro-unlock-banner.png)
 
 # [Paid Memberships Pro - Unlock Protocol](https://linktoplugin.com) #
 [comment]: # (Generate badges from shields.io, only works for .org plugins to get other stats etc. We'd have to create our own endpoints for Premium plugins)
