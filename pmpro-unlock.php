@@ -29,7 +29,7 @@ require_once( PMPROUP_DIR . '/includes/login.php' );
 /**
  * Initialize the plugin's text domain for translations.
  */
-function pmpro_up_load_plugin_textdomain() {
+function pmproup_load_plugin_textdomain() {
 	load_plugin_textdomain( 'pmpro-unlock', false, basename( dirname( __FILE__ ) ) . '/languages' ); 
 }
-add_action( 'plugins_loaded', 'pmpro_up_load_plugin_textdomain' );
+add_action( 'plugins_loaded', 'pmproup_load_plugin_textdomain' );
