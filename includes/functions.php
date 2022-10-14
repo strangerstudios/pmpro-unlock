@@ -185,8 +185,8 @@ function pmproup_connect_wallet_button( $state = null ) {
 	
     $url = pmproup_get_login_url( esc_url( $redirect_uri ) );
 ?>
-    <div class='pmpro-unlock-protocol-login-container' style="margin-bottom:20px;">
-        <a href="<?php echo esc_url( $url ); ?>" rel="nofollow" class="pmpro-unlock-protocol-connect-button" style="background-color: black;color:white;padding:1em;"><?php echo $button_text; ?></a>
+    <div class='pmproup-protocol-login-container' style="margin-bottom:20px;">
+        <a href="<?php echo esc_url( $url ); ?>" rel="nofollow" class="pmproup-protocol-connect-button" style="background-color: black;color:white;padding:1em;"><?php echo $button_text; ?></a>
     </div>
 <?php
 }

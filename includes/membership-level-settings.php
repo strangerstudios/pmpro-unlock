@@ -36,10 +36,10 @@ function pmproup_level_settings() {
             <tr>
                 <p>Configure settings below if an NFT is required to purchase this membership level. If a valid NFT is detected for the member, they will be able to claim this membership for free.</p>
                 <th scope="row" valign="top">   
-                    <label for="pmpro-unlock-network"><?php esc_html_e( 'Choose a Network:', 'pmpro-unlock' ); ?></label>
+                    <label for="pmproup-network"><?php esc_html_e( 'Choose a Network:', 'pmpro-unlock' ); ?></label>
                 </th>   
                 <td>
-                    <select name="pmpro-unlock-network" id="pmpro-unlock-network">
+                    <select name="pmproup-network" id="pmproup-network">
                     <?php
                         foreach ( $networks as $network ) {
                             echo "<option value='" . esc_attr( $network['network_name'] ) . "' " . selected( $network_value, $network['network_name'], false ) . ">" . esc_html( $network['network_name'] ) . "</option>";
@@ -51,14 +51,14 @@ function pmproup_level_settings() {
             <tr>
                 <th scope="row" valign="top"><?php esc_html_e( 'Lock Address:', 'pmpro-unlock' ); ?></th>
                 <td>
-                    <input type="text" name="pmpro-unlock-lock" id="pmpro-unlock-lock" class="regular-text" value="<?php echo esc_attr( $lock_address_value ); ?>"/>
+                    <input type="text" name="pmproup-lock" id="pmproup-lock" class="regular-text" value="<?php echo esc_attr( $lock_address_value ); ?>"/>
                     <p class="description"><a href="https://app.unlock-protocol.com/dashboard" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Deploy a lock', 'pmpro-unlock' ); ?></p>
                 </td>
             </tr>
             <tr>
                 <th scope="row" valign="top"><?php esc_html_e( 'Require NFT to checkout?', 'pmpro-unlock' ); ?></th>
                 <td>
-                    <select name="pmpro-unlock-nft-required" id="pmpro-unlock-nft-required">
+                    <select name="pmproup-nft-required" id="pmproup-nft-required">
                         <option value="No" <?php selected( $nft_required, "No", true ); ?>>No. People who don't have an NFT may checkout for this level.</option>
                         <option value="Yes" <?php selected( $nft_required, "Yes", true ); ?> >Yes. People are required to have an NFT to checkout for this level.</option>
                     </select>
@@ -79,9 +79,9 @@ function pmproup_save_membership_level( $level_id ) {
 	}
 
     $available_networks = pmproup_networks_list();
-    $network = sanitize_text_field( $_REQUEST['pmpro-unlock-network'] );
-    $lock_address = sanitize_text_field( $_REQUEST['pmpro-unlock-lock' ] );
-    $nft_required = sanitize_text_field( $_REQUEST['pmpro-unlock-nft-required'] );
+    $network = sanitize_text_field( $_REQUEST['pmproup-network'] );
+    $lock_address = sanitize_text_field( $_REQUEST['pmproup-lock' ] );
+    $nft_required = sanitize_text_field( $_REQUEST['pmproup-nft-required'] );
 
     // Save the entire network details for this lock.
     $pmproup_settings = array( 'network_name' => $network, 'lock_address' => $lock_address, 'nft_required' => $nft_required );
