@@ -175,7 +175,7 @@ function pmproup_connect_wallet_button( $state = null ) {
 
 	switch ( $state ) {
 		case 'login':
-			$button_text = esc_html__( 'Login with Crypto Wallet', 'pmpro-unlock' );
+			$button_text = esc_html__( 'Log In with Crypto Wallet', 'pmpro-unlock' );
 			break;
 
 		default:
