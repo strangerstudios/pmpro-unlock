@@ -42,4 +42,4 @@ function pmproup_authenticate_via_wallet( $user ) {
 	}
 	return $user;
 }
-add_action( 'authenticate', 'pmproup_authenticate_via_wallet', 21 ); // Default WordPress authentication happens on priority 20. We want to run after that.
+add_action( 'authenticate', 'pmproup_authenticate_via_wallet' );
