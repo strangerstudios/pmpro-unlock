@@ -1,40 +1,40 @@
 <?php
 // Functions go here for now.
 
-define( 'PMPRO_UNLOCK_CHECKOUT', 'https://app.unlock-protocol.com/checkout' );
-define( 'PMPRO_UNLOCK_AUTH', 'https://locksmith.unlock-protocol.com/api/oauth' );
+define( 'PMPROUP_CHECKOUT', 'https://app.unlock-protocol.com/checkout' );
+define( 'PMPROUP_AUTH', 'https://locksmith.unlock-protocol.com/api/oauth' );
 
 /**
  * Get the client_id value whenever needed.
  *
  * @return string The domain name is used as the client_id for Unlock Protocol.
  */
-function pmpro_up_get_client_id() {
+function pmproup_get_client_id() {
 	return wp_parse_url( home_url(), PHP_URL_HOST );
 }
 
 
 // Get default redirect URL (Login page.)
-function pmpro_up_get_redirect_uri() {
+function pmproup_get_redirect_uri() {
 	return apply_filters( 'unlock_protocol_get_redirect_uri', wp_login_url() );
 }
 
 // Generate the Login URL we need.
-function pmpro_up_get_login_url( $redirect_uri = null ) {
+function pmproup_get_login_url( $redirect_uri = null ) {
 	$login_url = add_query_arg(
 		array(
-			'client_id'    => pmpro_up_get_client_id(),
-			'redirect_uri' => $redirect_uri ? $redirect_uri : pmpro_up_get_redirect_uri(),
-			'state'  => wp_create_nonce( 'pmpro_unlock_state' ),
+			'client_id'    => pmproup_get_client_id(),
+			'redirect_uri' => $redirect_uri ? $redirect_uri : pmproup_get_redirect_uri(),
+			'state'  => wp_create_nonce( 'pmproup_state' ),
 		),
-		PMPRO_UNLOCK_CHECKOUT
+		PMPROUP_CHECKOUT
 	);
 
 	return apply_filters( 'unlock_protocol_get_login_url', esc_url( $login_url ) );
 }
 
 //Generate the purchase URL for the level.
-function pmpro_up_get_checkout_url( $lock, $redirect_uri ) {
+function pmproup_get_checkout_url( $lock, $redirect_uri ) {
 
 	// Build the checkout array to buy the NFT.
     $lock_checkout = array();
@@ -43,7 +43,7 @@ function pmpro_up_get_checkout_url( $lock, $redirect_uri ) {
 	$lock_checkout[$lock_address] = array( 'network' => $lock['network_id'] );
 
 		$paywall_config = apply_filters(
-			'pmpro_unlock_protocol_paywall_config',
+			'pmproup_paywall_config',
 			array(
 				'locks'       => $lock_checkout,
 				'pessimistic' => true,
@@ -55,7 +55,7 @@ function pmpro_up_get_checkout_url( $lock, $redirect_uri ) {
 				'redirectUri'   => $redirect_uri,
 				'paywallConfig' => wp_json_encode( $paywall_config ),
 			),
-			PMPRO_UNLOCK_CHECKOUT
+			PMPROUP_CHECKOUT
 		);
 
 
@@ -69,13 +69,13 @@ function pmpro_up_get_checkout_url( $lock, $redirect_uri ) {
  * @param [type] $code
  * @return void
  */
-function pmpro_up_validate_auth_code( $code ) {
+function pmproup_validate_auth_code( $code ) {
 	$params = apply_filters(
-		'pmpro_unlock_protocol_validate_auth_code_params',
+		'pmproup_validate_auth_code_params',
 		array(
 			'grant_type'   => 'authorization_code',
-			'client_id'    => pmpro_up_get_client_id(),
-			'redirect_uri' => pmpro_up_get_redirect_uri(),
+			'client_id'    => pmproup_get_client_id(),
+			'redirect_uri' => pmproup_get_redirect_uri(),
 			'code'         => sanitize_text_field( $code ),
 			'state'		=> sanitize_text_field( $_REQUEST['state'] )
 		)
@@ -90,12 +90,12 @@ function pmpro_up_validate_auth_code( $code ) {
 	if ( ! $params['state'] ) {
 		return false;
 	} else {
-		if ( ! wp_verify_nonce( $params['state'], 'pmpro_unlock_state' ) ) {
+		if ( ! wp_verify_nonce( $params['state'], 'pmproup_state' ) ) {
 			return false;
 		}
 	}
 
-	$response = wp_remote_post( esc_url( PMPRO_UNLOCK_AUTH ), $args );
+	$response = wp_remote_post( esc_url( PMPROUP_AUTH ), $args );
 
 	if ( is_wp_error( $response ) ) {
 		return new \WP_Error( 'unlock_validate_auth_code', $response );
@@ -119,8 +119,8 @@ function pmpro_up_validate_auth_code( $code ) {
  * @param [type] $wallet
  * @return void
  */
-function pmpro_up_validate_lock( $network, $lock_address, $wallet = null ) {
-    $wallet = $wallet ? $wallet : pmpro_up_try_to_get_wallet();
+function pmproup_validate_lock( $network, $lock_address, $wallet = null ) {
+    $wallet = $wallet ? $wallet : pmproup_try_to_get_wallet();
     
     // If this is still empty, bail.
     if ( is_wp_error( $wallet ) ) {
@@ -130,7 +130,7 @@ function pmpro_up_validate_lock( $network, $lock_address, $wallet = null ) {
     $wallet = substr( $wallet, 2 );
 
     $params = apply_filters(
-			'pmpro_unlock_protocol_user_validate_params',
+			'pmproup_user_validate_params',
 			array(
 				'method'  => 'eth_call',
 				'params'  => array(
@@ -166,7 +166,7 @@ function pmpro_up_validate_lock( $network, $lock_address, $wallet = null ) {
 /**
  * Generate a button to connect wallet to Unlock Protocol.
  */
-function pmpro_up_connect_wallet_button( $state = null ) {
+function pmproup_connect_wallet_button( $state = null ) {
 	if ( is_admin() ) {
 		$redirect_uri = admin_url( basename( $_SERVER['REQUEST_URI'] ) );
 	} else {
@@ -183,10 +183,10 @@ function pmpro_up_connect_wallet_button( $state = null ) {
 			break;
 	}
 	
-    $url = pmpro_up_get_login_url( esc_url( $redirect_uri ) );
+    $url = pmproup_get_login_url( esc_url( $redirect_uri ) );
 ?>
-    <div class='pmpro-unlock-protocol-login-container' style="margin-bottom:20px;">
-        <a href="<?php echo esc_url( $url ); ?>" rel="nofollow" class="pmpro-unlock-protocol-connect-button" style="background-color: black;color:white;padding:1em;"><?php echo $button_text; ?></a>
+    <div class='pmproup-protocol-login-container' style="margin-bottom:20px;">
+        <a href="<?php echo esc_url( $url ); ?>" rel="nofollow" class="pmproup-protocol-connect-button" style="background-color: black;color:white;padding:1em;"><?php echo $button_text; ?></a>
     </div>
 <?php
 }
@@ -196,10 +196,10 @@ function pmpro_up_connect_wallet_button( $state = null ) {
  * 
  * @return string|bool $wallet The user's recently saved wallet address. Returns false if no wallet address is found/saved.
  */
-function pmpro_up_check_save_wallet( $user_id = null, $code = null ) {
+function pmproup_check_save_wallet( $user_id = null, $code = null ) {
 	// Let's check code from REQUEST param or SESSION.
     if ( empty( $code ) ) {
-		$code = pmpro_up_get_auth_code();
+		$code = pmproup_get_auth_code();
     }
 
     $wallet = false; // Default value.
@@ -212,15 +212,15 @@ function pmpro_up_check_save_wallet( $user_id = null, $code = null ) {
 
     // Try to get wallet from meta if we have their ID.
     if ( ! empty( $user_id ) && ! $code ) {
-        $wallet = get_user_meta( $user_id, 'pmpro_unlock_wallet', true ); // Try to get it from user meta if we know they're logged in.
+        $wallet = get_user_meta( $user_id, 'pmproup_wallet', true ); // Try to get it from user meta if we know they're logged in.
     }
 
     // Let's try save/update the wallet to user meta for reference if we see a 'code' query param
     if ( $code ) {
-        $wallet = pmpro_up_validate_auth_code( $code );
+        $wallet = pmproup_validate_auth_code( $code );
 
         if ( ! is_wp_error( $wallet ) && $user_id ) {
-           update_user_meta( $user_id, 'pmpro_unlock_wallet', $wallet ); // Update wallet even if it's false, let's assume for now that people might be unlinking their wallet.
+           update_user_meta( $user_id, 'pmproup_wallet', $wallet ); // Update wallet even if it's false, let's assume for now that people might be unlinking their wallet.
 		   pmpro_unset_session_var( 'code' );
         } elseif ( is_wp_error( $wallet ) ) {
 			pmpro_unset_session_var( 'code' );
@@ -237,7 +237,7 @@ function pmpro_up_check_save_wallet( $user_id = null, $code = null ) {
  * @param int $user_id The user's WordPress ID if available.
  * @return string $wallet The user's linked wallet address.
  */
-function pmpro_up_try_to_get_wallet( $user_id = null ) {
+function pmproup_try_to_get_wallet( $user_id = null ) {
 	if ( empty( $user_id ) ) {
 		global $current_user;
 		$user_id = $current_user->ID;
@@ -248,7 +248,7 @@ function pmpro_up_try_to_get_wallet( $user_id = null ) {
 	// If user ID isn't empty, try to get wallet from meta.
 	if ( ! empty( $user_id ) ) {
 		// Let's try get their meta values now.
-		$wallet = get_user_meta( $user_id, 'pmpro_unlock_wallet', true );
+		$wallet = get_user_meta( $user_id, 'pmproup_wallet', true );
 		
 		/// Look into this logic.
 		if ( empty( $wallet ) ) {
@@ -257,9 +257,9 @@ function pmpro_up_try_to_get_wallet( $user_id = null ) {
 	}
 
 	if ( empty( $wallet ) ) {
-		$code = pmpro_up_get_auth_code();	
+		$code = pmproup_get_auth_code();	
 		if ( $code ) {
-			$wallet = pmpro_up_validate_auth_code( $code );
+			$wallet = pmproup_validate_auth_code( $code );
 		}
 	}
 
@@ -272,7 +272,7 @@ function pmpro_up_try_to_get_wallet( $user_id = null ) {
  *
  * @return string $code The oAuth code when connecting a wallet.
  */
-function pmpro_up_get_auth_code() {
+function pmproup_get_auth_code() {
 	$code = '';
 
 	// Let's try to overwrite any session data with REQUEST param stuff.
@@ -295,7 +295,7 @@ function pmpro_up_get_auth_code() {
  *
  * @return bool $has_level A boolean value to check if a user should have a level or not.
  */
-function pmpro_up_has_membership_level( $has_level, $user_id, $levels ) {
+function pmproup_has_membership_level( $has_level, $user_id, $levels ) {
 	// if they don't have access already, just bail.
 	if ( ! $has_level ) {
 		return $has_level;
@@ -304,8 +304,8 @@ function pmpro_up_has_membership_level( $has_level, $user_id, $levels ) {
 	$level = pmpro_getMembershipLevelForUser( $user_id );
 	$level_id = $level->ID;
 
-	$level_lock_options = get_option( 'pmpro_unlock_protocol_' . $level_id, true );
-	$wallet = pmpro_up_try_to_get_wallet( $user_id );
+	$level_lock_options = get_option( 'pmproup_' . $level_id, true );
+	$wallet = pmproup_try_to_get_wallet( $user_id );
 
 	// If no wallet is found, let's leave it to PMPro to handle.
 	if ( empty( $level_lock_options ) || empty( $wallet ) ) { /// Improve this check here.
@@ -313,7 +313,7 @@ function pmpro_up_has_membership_level( $has_level, $user_id, $levels ) {
 	}
 
 	// Check if they have lock access.
-	$check_lock = pmpro_up_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
+	$check_lock = pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
 	
 	// If they hold an active NFT, deny access.
 	if ( ! $check_lock ) {
@@ -322,7 +322,7 @@ function pmpro_up_has_membership_level( $has_level, $user_id, $levels ) {
 
 	return $has_level;
 }
-add_filter( 'pmpro_has_membership_level', 'pmpro_up_has_membership_level', 10, 3 );
+add_filter( 'pmpro_has_membership_level', 'pmproup_has_membership_level', 10, 3 );
 
 /**
  * Undocumented function
@@ -332,13 +332,13 @@ add_filter( 'pmpro_has_membership_level', 'pmpro_up_has_membership_level', 10, 3
  * @param string $wallet The user's crypto wallet address.
  * @return bool $has_lock_access Check Unlock Protocols network to ensure the wallet address has access to a lock.
  */
-function pmpro_up_has_lock_access( $network, $lock, $wallet ) {
+function pmproup_has_lock_access( $network, $lock, $wallet ) {
 
 	$network = sanitize_text_field( $network );
 	$lock = sanitize_text_field( $lock );
 	$wallet = sanitize_text_field( $wallet );
 
-	$check_lock = pmpro_up_validate_lock( $network, $lock, $wallet );
+	$check_lock = pmproup_validate_lock( $network, $lock, $wallet );
 
 	$has_lock_access = false;
 
@@ -346,7 +346,7 @@ function pmpro_up_has_lock_access( $network, $lock, $wallet ) {
 		$has_lock_access = true;
 	}
 
-	return apply_filters( 'pmpro_up_has_lock_access', $has_lock_access, $network, $lock, $wallet );
+	return apply_filters( 'pmproup_has_lock_access', $has_lock_access, $network, $lock, $wallet );
 }
 
 /**
@@ -355,9 +355,9 @@ function pmpro_up_has_lock_access( $network, $lock, $wallet ) {
  * @param [type] $wallet
  * @return object|bool $user Returns the user object or false if the user isn't found.
  */
-function pmpro_up_get_user_by_wallet( $wallet ) {
+function pmproup_get_user_by_wallet( $wallet ) {
 	$args = array(
-		'meta_key'     => 'pmpro_unlock_wallet',
+		'meta_key'     => 'pmproup_wallet',
 		'meta_value'   => sanitize_text_field( $wallet ),
 		'meta_compare' => '=',
 	);
