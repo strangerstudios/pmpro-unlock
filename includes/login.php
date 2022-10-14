@@ -8,7 +8,7 @@
  * Add a "Connect Your Crypto Wallet" button to the default login page of WordPress.
  */
 function pmpro_up_add_button_to_login_form() {
-	echo pmpro_up_connect_wallet_button();
+	echo pmpro_up_connect_wallet_button( 'login' );
 }
 add_action( 'login_form', 'pmpro_up_add_button_to_login_form' );
 

@@ -166,23 +166,31 @@ function pmpro_up_validate_lock( $network, $lock_address, $wallet = null ) {
 /**
  * Generate a button to connect wallet to Unlock Protocol.
  */
-function pmpro_up_connect_wallet_button() {
+function pmpro_up_connect_wallet_button( $state = null ) {
 	if ( is_admin() ) {
 		$redirect_uri = admin_url( basename( $_SERVER['REQUEST_URI'] ) );
 	} else {
 		$redirect_uri = get_permalink();
 	}
+
+	switch ( $state ) {
+		case 'login':
+			$button_text = esc_html__( 'Login with Crypto Wallet', 'pmpro-unlock' );
+			break;
+
+		default:
+			$button_text = esc_html__( 'Connect Your Crypto Wallet', 'pmpro-unlock' );
+			break;
+	}
 	
     $url = pmpro_up_get_login_url( esc_url( $redirect_uri ) );
 ?>
-    <div class='pmpro-unlock-protocol-login-container' style="padding: 10px;">
-        <a href="<?php echo esc_url( $url ); ?>" rel="nofollow" class="pmpro-unlock-protocol-connect-button" style="background-color: black;color:white;padding:1em;"><?php esc_html_e( 'Connect Your Crypto Wallet', 'pmpro-unlock' ); ?></a>
+    <div class='pmpro-unlock-protocol-login-container' style="margin-bottom:20px;">
+        <a href="<?php echo esc_url( $url ); ?>" rel="nofollow" class="pmpro-unlock-protocol-connect-button" style="background-color: black;color:white;padding:1em;"><?php echo $button_text; ?></a>
     </div>
 <?php
 }
 
-
-/// Change to SET method.
 /**
  * Validate wallet and store to usermeta for later use so we don't have to make API calls all the time.
  * 
@@ -223,7 +231,6 @@ function pmpro_up_check_save_wallet( $user_id = null, $code = null ) {
     return $wallet;
 }
 
-/// Change to GET method.
 /**
  * Helper function to try and get a stored wallet address for the user. Fallsback to Unlock Protocol Meta.
  *

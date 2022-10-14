@@ -14,19 +14,17 @@ function pmpro_up_add_wallet_to_checkout() {
     if ( is_wp_error( $wallet ) || ! $wallet ) {
         echo pmpro_up_connect_wallet_button();
     } else {
-        echo "<p>We've got a wallet address" . $wallet . "</p>"; /// Remove this later.
-
         $level_lock_options = get_option( 'pmpro_unlock_protocol_' . $level_id, true );
 
         // Let's check the validate lock status.
         $check_lock = pmpro_up_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
 
         if ( $check_lock ) {
-            echo pmpro_setMessage( 'ALL GOOD', 'pmpro_success'); ///Change this later on.
-        } else { ///Look at this too.
+            echo pmpro_setMessage( 'You hold a valid lock, you may claim this membership level for free.', 'pmpro_success'); ///Change this later on.
+        } else {
             $redirect_uri = get_permalink() . '?level=' . $level_id;
             $checkout_url = pmpro_up_get_checkout_url( $level_lock_options, $redirect_uri );
-            echo "You can purchase this NFT <a href='" . $checkout_url . "'>Click here to buy the NFT</a>"; /// Build Checkout URL here, maybe check level options if NFT is totally required.
+            echo "You can purchase this NFT <a href='" . esc_url( $checkout_url ) . "'>" . esc_html__( 'Click here to buy the NFT', 'pmpro-unlock' ) . "</a>"; 
         }
     }
 }
