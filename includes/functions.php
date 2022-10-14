@@ -273,6 +273,10 @@ function pmproup_try_to_get_wallet( $user_id = null ) {
  * @return string $code The oAuth code when connecting a wallet.
  */
 function pmproup_get_auth_code() {
+	if ( ! function_exists( 'pmpro_unset_session_var' ) ) {
+		return '';
+	}
+
 	$code = '';
 
 	// Let's try to overwrite any session data with REQUEST param stuff.

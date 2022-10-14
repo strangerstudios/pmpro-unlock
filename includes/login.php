@@ -16,35 +16,30 @@ add_action( 'login_form', 'pmproup_add_button_to_login_form' );
  * Authenticate via crypto network.
  */
 function pmproup_authenticate_via_wallet( $user ) {
+	// If the user is already logged in, don't do anything.
+	if ( $user instanceof WP_User ) {
+		return $user;
+	}
 
-    if ( $user instanceof WP_User ) {
-			return $user;
-		}
+	// Check if user is trying to log in via a crypto wallet.
+	if ( ! isset( $_REQUEST['state'] ) || ! wp_verify_nonce( sanitize_text_field( $_REQUEST['state'] ), 'pmproup_state') ) {
+		return $user;
+	}
 
-		$code  = sanitize_text_field( $_REQUEST['code'] );
-		$state = sanitize_text_field( $_REQUEST['state'] );
+	// Let's get the wallet address from the auth code.
+	$wallet = pmproup_try_to_get_wallet();
 
-		if ( '' === $code || ! wp_verify_nonce( $state, 'pmproup_state') ) {
-			return $user;
-		}
+	if ( is_wp_error( $wallet ) ) {
+		$user  = new WP_Error( 'authentication_failed', __( 'ERROR: There was a problem retrieving the wallet address.' ) );
+		return $user;
+	}
 
-        // Let's get the wallet address from the auth code.
-        $wallet = pmproup_try_to_get_wallet();
-
-        if ( is_wp_error( $wallet ) ) {
-            $error = new WP_Error();
-            $user  = new WP_Error( 'authentication_failed', __( 'ERROR: There was a problem retrieving the wallet address.' ) );
-            return $user;
-        }
-        // Try to get a user via their wallet now
-        $user = pmproup_get_user_by_wallet( $wallet );
-
-        if ( ! $user ) {
-            $error = new WP_Error();
-            $user  = new WP_Error( 'authentication_failed', __( 'ERROR: Unable to find an account with that wallet. Please create a WordPress account first and link your wallet.' ) );
-            return $user;
-        }
-        return $user;
+	// Try to get a user via their wallet now
+	$user = pmproup_get_user_by_wallet( $wallet );
+	if ( ! $user ) {
+		$user  = new WP_Error( 'authentication_failed', __( 'ERROR: Unable to find an account with that wallet. Please create a WordPress account first and link your wallet.' ) );
+		return $user;
+	}
+	return $user;
 }
-add_action( 'authenticate', 'pmproup_authenticate_via_wallet' );
-
+add_action( 'authenticate', 'pmproup_authenticate_via_wallet', 21 ); // Default WordPress authentication happens on priority 20. We want to run after that.
