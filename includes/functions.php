@@ -53,7 +53,7 @@ function pmproup_get_checkout_url( $lock, $redirect_uri ) {
 		$checkout_url = add_query_arg(
 			array(
 				'redirectUri'   => $redirect_uri,
-				'paywallConfig' => wp_json_encode( $paywall_config ),
+				'paywallConfig' => urlencode( wp_json_encode( $paywall_config ) ),
 			),
 			PMPROUP_CHECKOUT
 		);
