@@ -10,7 +10,13 @@ define( 'PMPROUP_AUTH', 'https://locksmith.unlock-protocol.com/api/oauth' );
  * @return string The domain name is used as the client_id for Unlock Protocol.
  */
 function pmproup_get_client_id() {
-	return wp_parse_url( home_url(), PHP_URL_HOST );
+	$parsed_url =  wp_parse_url( home_url() );
+	if ( ! empty( $parsed_url['host'] ) && ! empty( $parsed_url['port'] ) ) {
+		return $parsed_url['host'] . ':' . $parsed_url['port'];
+	} elseif( ! empty( $parsed_url['host'] ) ) {
+		return $parsed_url['host'];
+	}
+	return '';
 }
 
 
