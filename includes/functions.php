@@ -304,10 +304,11 @@ function pmproup_has_membership_level( $has_level, $user_id, $levels ) {
 	$level = pmpro_getMembershipLevelForUser( $user_id );
 	$level_id = $level->ID;
 
-	$level_lock_options = get_option( 'pmproup_' . $level_id, true );
+	$level_lock_options = get_option( 'pmproup_' . $level_id, false );
 	$wallet = pmproup_try_to_get_wallet( $user_id );
 
 	// If no wallet is found, let's leave it to PMPro to handle.
+	var_dump( $level_lock_options );
 	if ( empty( $level_lock_options ) || empty( $wallet ) ) { /// Improve this check here.
 		return $has_level;
 	}
