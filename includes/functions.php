@@ -221,9 +221,9 @@ function pmproup_check_save_wallet( $user_id = null, $code = null ) {
 
         if ( ! is_wp_error( $wallet ) && $user_id ) {
            update_user_meta( $user_id, 'pmproup_wallet', $wallet ); // Update wallet even if it's false, let's assume for now that people might be unlinking their wallet.
-		   pmpro_unset_session_var( 'code' );
+		   pmpro_unset_session_var( 'pmproup_code' );
         } elseif ( is_wp_error( $wallet ) ) {
-			pmpro_unset_session_var( 'code' );
+			pmpro_unset_session_var( 'pmproup_code' );
             $wallet = $wallet->get_error_message(); /// Maybe return false?
         }
     }
@@ -277,14 +277,14 @@ function pmproup_get_auth_code() {
 
 	// Let's try to overwrite any session data with REQUEST param stuff.
 	if ( isset( $_REQUEST['code' ] ) ) {
-		pmpro_unset_session_var( 'code' ); // Let's try unset any SESSION data we might have.
+		pmpro_unset_session_var( 'pmproup_code' ); // Let's try unset any SESSION data we might have.
 		$code = sanitize_text_field( $_REQUEST['code'] );
-		pmpro_set_session_var( 'code', $code );
+		pmpro_set_session_var( 'pmproup_code', $code );
 	}
 
 	// try get it from the session.
 	if ( empty( $code ) ) {
-		$code = pmpro_get_session_var( 'code' );
+		$code = pmpro_get_session_var( 'pmproup_code' );
 	}
 
 	return $code;
@@ -296,33 +296,35 @@ function pmproup_get_auth_code() {
  * @return bool $has_level A boolean value to check if a user should have a level or not.
  */
 function pmproup_has_membership_level( $has_level, $user_id, $levels ) {
+
 	// if they don't have access already, just bail.
 	if ( ! $has_level ) {
 		return $has_level;
 	}
 
-	$level = pmpro_getMembershipLevelForUser( $user_id );
-	$level_id = $level->ID;
-
-	$level_lock_options = get_option( 'pmproup_' . $level_id, false );
-	$wallet = pmproup_try_to_get_wallet( $user_id );
-
-	// If no wallet is found, let's leave it to PMPro to handle.
-	if ( empty( $level_lock_options ) || empty( $wallet ) ) { /// Improve this check here.
-		return $has_level;
-	}
-
-	// Check if they have lock access.
-	$check_lock = pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
-	
-	// If they hold an active NFT, deny access.
-	if ( ! $check_lock ) {
-		$has_level = false;
-	}
+	$has_level = pmproup_should_have_access( $has_level, $user_id );
 
 	return $has_level;
 }
 add_filter( 'pmpro_has_membership_level', 'pmproup_has_membership_level', 10, 3 );
+
+/**
+ * Filter access.
+ */
+function pmproup_pmpro_has_membership_access_filter( $hasaccess, $post, $user, $post_levels ) {
+	
+	// Bail if member has no access.
+	if ( ! $hasaccess ) {
+		return $hasaccess;
+	}
+
+	// Check if the user should have access to the item.
+	$hasaccess = pmproup_should_have_access( $hasaccess, $user->ID );
+
+
+	return $hasaccess;
+}
+add_filter( 'pmpro_has_membership_access_filter', 'pmproup_pmpro_has_membership_access_filter', 10, 4 );
 
 /**
  * Undocumented function
@@ -369,4 +371,39 @@ function pmproup_get_user_by_wallet( $wallet ) {
 	}
 
 	return false;
+}
+
+/**
+ * Should user have access based on level settings and lock settings.
+ * Helper function to check lock access and level settings.
+ * 
+ * @since 0.1
+ * 
+ * @param bool $hasaccess Returns true or false based on level settings requirement and if a valid NFT is present.
+ * @param int $user_id The user's ID to check wallet and lock access.
+ */
+function pmproup_should_have_access( $hasaccess = false, $user_id ) {
+	$level = pmpro_getMembershipLevelForUser( $user_id );
+	$level_id = $level->ID;
+
+	$level_lock_options = get_option( 'pmproup_' . $level_id, true );
+	$wallet = pmproup_try_to_get_wallet( $user_id );
+
+	// If no wallet is found, let's leave it to PMPro to handle.
+	if ( empty( $level_lock_options ) || empty( $wallet ) || $level_lock_options['nft_required'] === 'No' ) { /// Improve this check here.
+		return $hasaccess;
+	}
+
+	// Check if they have lock access.
+	$check_lock = pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
+	
+	// If they hold an active NFT, deny access.
+	if ( ! $check_lock ) {
+		$hasaccess = false;
+	} else {
+		$hasaccess = true;
+	}
+
+	return $hasaccess;
+
 }
