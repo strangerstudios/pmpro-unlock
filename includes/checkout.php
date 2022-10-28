@@ -37,7 +37,7 @@ add_action( 'pmpro_checkout_after_pricing_fields', 'pmproup_add_wallet_to_checko
 function pmproup_save_wallet_after_level_change( $level_id, $user_id, $cancel_level ) {
     // Try to save user's wallet after they're given a level.
     pmproup_check_save_wallet( $user_id );
-    pmpro_unset_session_var( 'code' ); // Remove any session VAR that may be there.
+    pmpro_unset_session_var( 'pmproup_code' ); // Remove any session VAR that may be there.
 }
 add_action( 'pmpro_after_change_membership_level', 'pmproup_save_wallet_after_level_change', 10, 3 );
 
