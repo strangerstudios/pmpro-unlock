@@ -387,10 +387,16 @@ function pmproup_should_have_access( $hasaccess = false, $user_id ) {
 	$level_id = $level->ID;
 
 	$level_lock_options = get_option( 'pmproup_' . $level_id, true );
-	$wallet = pmproup_try_to_get_wallet( $user_id );
 
+	// Level does not require NFT only to view content.
+	if ( $level_lock_options['nft_required'] === 'No' ) {
+		return $hasaccess;
+	}
+
+	$wallet = pmproup_try_to_get_wallet( $user_id );
+	
 	// If no wallet is found, let's leave it to PMPro to handle.
-	if ( empty( $level_lock_options ) || empty( $wallet ) || $level_lock_options['nft_required'] === 'No' ) { /// Improve this check here.
+	if ( empty( $level_lock_options ) || empty( $wallet ) ) { /// Improve this check here.
 		return $hasaccess;
 	}
 
