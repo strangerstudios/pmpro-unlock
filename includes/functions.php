@@ -305,28 +305,9 @@ function pmproup_get_auth_code() {
 }
 
 /**
- * Checking to ensure the member still has access to the NFT periodically. If they don't, set it to false.
- *
- * @return bool $has_level A boolean value to check if a user should have a level or not.
- */
-function pmproup_has_membership_level( $has_level, $user_id, $levels ) {
-
-	// if they don't have access already, just bail.
-	if ( ! $has_level ) {
-		return $has_level;
-	}
-
-	$has_level = pmproup_should_have_access( $user_id, $levels );
-
-	return $has_level;
-}
-add_filter( 'pmpro_has_membership_level', 'pmproup_has_membership_level', 10, 3 );
-
-/**
  * Filter access.
  */
 function pmproup_pmpro_has_membership_access_filter( $hasaccess, $post, $user, $post_levels ) {
-	
 	// Bail if member has no access.
 	if ( ! $hasaccess ) {
 		return $hasaccess;
@@ -350,15 +331,29 @@ add_filter( 'pmpro_has_membership_access_filter', 'pmproup_pmpro_has_membership_
  */
 function pmproup_has_lock_access( $network, $lock, $wallet ) {
 
-	$network = sanitize_text_field( $network );
+	$network = sanitize_url( $network );
 	$lock = sanitize_text_field( $lock );
 	$wallet = sanitize_text_field( $wallet );
-
-	$check_lock = pmproup_validate_lock( $network, $lock, $wallet );
-
 	$has_lock_access = false;
 
-	if ( ! is_wp_error( $check_lock ) && hexdec( $check_lock['result'] ) == 1 ) {
+	// Last 8 digits of the lock and wallet for the transient, for reference.
+	$ref_lock = substr( $lock, -8 );
+	$ref_wallet = substr( $wallet, -8 );
+
+	$pmproup_transient_name = 'pmproup_has_lock_' . $ref_lock . '_' . $ref_wallet;
+
+	// Check if the transient is available, if not try to get lock access and cache the results.
+	if ( ! get_transient( $pmproup_transient_name ) ) {
+	
+		$check_lock = pmproup_validate_lock( $network, $lock, $wallet );
+
+
+		if ( ! is_wp_error( $check_lock ) && hexdec( $check_lock['result'] ) == 1 ) {
+			set_transient( $pmproup_transient_name, true, 2 * HOUR_IN_SECONDS ); // Cache for 2 hours? Maybe make this filterable?
+			$has_lock_access = true;
+		}
+
+	} else {
 		$has_lock_access = true;
 	}
 
@@ -399,6 +394,15 @@ function pmproup_get_user_by_wallet( $wallet ) {
  * @return bool $hasaccess Returns true or false based on whether the user has access or not.
  */
 function pmproup_should_have_access( $user_id, $levels ) {
+
+	// Get the user's wallet so that we can see if they still have the NFT for this level.
+	$wallet = pmproup_try_to_get_wallet( $user_id );
+	
+	// If no wallet is found, then we can't confirm that they still have the NFT.
+	if ( empty( $wallet ) ) {
+		return false;
+	}
+
 	// If multiple levels are passed in, check each one individually and return if any have access.
 	if ( is_array( $levels ) ) {
 		foreach ( $levels as $level) {
@@ -429,14 +433,6 @@ function pmproup_should_have_access( $user_id, $levels ) {
 	if ( empty( get_user_meta( $user_id, 'pmproup_claimed_nft_' . $levels, true ) ) ) {
 		// If the user did not purchase the level with a NFT, we don't need to check if they still have it.
 		return true;
-	}
-
-	// Get the user's wallet so that we can see if they still have the NFT for this level.
-	$wallet = pmproup_try_to_get_wallet( $user_id );
-	
-	// If no wallet is found, then we can't confirm that they still have the NFT.
-	if ( empty( $wallet ) ) {
-		return false;
 	}
 
 	// We have a wallet. Let's get the lock address for this level and check if the user has access.
