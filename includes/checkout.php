@@ -129,6 +129,8 @@ function pmproup_registration_checks( $continue ) {
     
     if ( ! $continue ) {
         pmpro_setMessage( 'You need an NFT to claim this membership', 'pmpro_error' ); // Change this.
+    } else {
+        pmproup_clear_transients( $level_lock_options['lock_address'], $wallet );
     }
 
     return $continue;
@@ -167,6 +169,8 @@ function pmproup_after_checkout( $user_id, $morder ) {
         // TODO: Get an actual unique ID for the NFT to save.
         $unique_lock_id = '1';
         update_user_meta( $user_id, 'pmproup_claimed_nft_' . $level_id, $unique_lock_id );
+
+        pmproup_clear_transients( $level_lock_options['lock_address'], $wallet );
     }
 }
 

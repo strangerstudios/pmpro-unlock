@@ -326,7 +326,6 @@ add_filter( 'pmpro_has_membership_level', 'pmproup_has_membership_level', 10, 3 
  * Filter access.
  */
 function pmproup_pmpro_has_membership_access_filter( $hasaccess, $post, $user, $post_levels ) {
-	
 	// Bail if member has no access.
 	if ( ! $hasaccess ) {
 		return $hasaccess;
@@ -350,16 +349,34 @@ add_filter( 'pmpro_has_membership_access_filter', 'pmproup_pmpro_has_membership_
  */
 function pmproup_has_lock_access( $network, $lock, $wallet ) {
 
-	$network = sanitize_text_field( $network );
+	$network = sanitize_url( $network );
 	$lock = sanitize_text_field( $lock );
 	$wallet = sanitize_text_field( $wallet );
-
-	$check_lock = pmproup_validate_lock( $network, $lock, $wallet );
-
 	$has_lock_access = false;
 
-	if ( ! is_wp_error( $check_lock ) && hexdec( $check_lock['result'] ) == 1 ) {
-		$has_lock_access = true;
+	// Last 8 digits of the lock and wallet for the transient, for reference.
+	$ref_lock = substr( $lock, -8 );
+	$ref_wallet = substr( $wallet, -8 );
+
+	$pmproup_transient_name = 'pmproup_has_lock_' . $ref_lock . '_' . $ref_wallet;
+	$transient_expiration = apply_filters( 'pmproup_has_lock_access_transient_expiration', 2 * HOUR_IN_SECONDS ); // 2 hours.
+
+	// Check if the transient is available, if not try to get lock access and cache the results.
+	if ( empty( get_transient( $pmproup_transient_name ) ) ) {
+	
+		$check_lock = pmproup_validate_lock( $network, $lock, $wallet );
+
+		if ( ! is_wp_error( $check_lock ) && hexdec( $check_lock['result'] ) == 1 ) {
+			set_transient( $pmproup_transient_name, true, $transient_expiration ); 
+			$has_lock_access = true;
+		} else {
+			set_transient( $pmproup_transient_name, false, $transient_expiration ); 
+			$has_lock_access = false;
+		}
+
+	} else {
+		// Get the lock access from the transient which will be either true or false.
+		$has_lock_access = get_transient( $pmproup_transient_name );
 	}
 
 	return apply_filters( 'pmproup_has_lock_access', $has_lock_access, $network, $lock, $wallet );
@@ -399,6 +416,15 @@ function pmproup_get_user_by_wallet( $wallet ) {
  * @return bool $hasaccess Returns true or false based on whether the user has access or not.
  */
 function pmproup_should_have_access( $user_id, $levels ) {
+
+	// Get the user's wallet so that we can see if they still have the NFT for this level.
+	$wallet = pmproup_try_to_get_wallet( $user_id );
+	
+	// If no wallet is found, then we can't confirm that they still have the NFT.
+	if ( empty( $wallet ) ) {
+		return false;
+	}
+
 	// If multiple levels are passed in, check each one individually and return if any have access.
 	if ( is_array( $levels ) ) {
 		foreach ( $levels as $level) {
@@ -431,15 +457,23 @@ function pmproup_should_have_access( $user_id, $levels ) {
 		return true;
 	}
 
-	// Get the user's wallet so that we can see if they still have the NFT for this level.
-	$wallet = pmproup_try_to_get_wallet( $user_id );
-	
-	// If no wallet is found, then we can't confirm that they still have the NFT.
-	if ( empty( $wallet ) ) {
-		return false;
-	}
-
 	// We have a wallet. Let's get the lock address for this level and check if the user has access.
 	$level_lock_options = get_option( 'pmproup_' . $levels, true );
 	return pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
+}
+
+/**
+ * Function to clear transients.
+ *
+ * @param string $lock The NFT Lock address.
+ * @param string $wallet The user's wallet address.
+ */
+function pmproup_clear_transients( $lock, $wallet ) {
+	// Last 8 digits of the lock and wallet for the transient, for reference.
+	$ref_lock = substr( $lock, -8 );
+	$ref_wallet = substr( $wallet, -8 );
+
+	$pmproup_transient_name = 'pmproup_has_lock_' . $ref_lock . '_' . $ref_wallet;
+
+	delete_transient( $pmproup_transient_name );
 }
