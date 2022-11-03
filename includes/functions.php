@@ -76,6 +76,10 @@ function pmproup_get_checkout_url( $lock, $redirect_uri ) {
  * @return void
  */
 function pmproup_validate_auth_code( $code ) {
+	if ( empty( $_REQUEST['state'] ) ) {
+		return false;
+	}
+
 	$params = apply_filters(
 		'pmproup_validate_auth_code_params',
 		array(
@@ -312,7 +316,7 @@ function pmproup_has_membership_level( $has_level, $user_id, $levels ) {
 		return $has_level;
 	}
 
-	$has_level = pmproup_should_have_access( $has_level, $user_id );
+	$has_level = pmproup_should_have_access( $user_id, $levels );
 
 	return $has_level;
 }
@@ -329,7 +333,7 @@ function pmproup_pmpro_has_membership_access_filter( $hasaccess, $post, $user, $
 	}
 
 	// Check if the user should have access to the item.
-	$hasaccess = pmproup_should_have_access( $hasaccess, $user->ID );
+	$hasaccess = pmproup_should_have_access( $user->ID, wp_list_pluck( $post_levels, 'id' ) );
 
 
 	return $hasaccess;
@@ -384,42 +388,58 @@ function pmproup_get_user_by_wallet( $wallet ) {
 }
 
 /**
- * Should user have access based on level settings and lock settings.
- * Helper function to check lock access and level settings.
+ * For users who purchased a membership using an NFT, verify they still have access to the NFT when
+ * trying to view restricted content.
  * 
  * @since 0.1
  * 
- * @param bool $hasaccess Returns true or false based on level settings requirement and if a valid NFT is present.
  * @param int $user_id The user's ID to check wallet and lock access.
+ * @param int|array[int] $levels The level ID or array of level IDs to check.
+ *
+ * @return bool $hasaccess Returns true or false based on whether the user has access or not.
  */
-function pmproup_should_have_access( $hasaccess = false, $user_id ) {
-	$level = pmpro_getMembershipLevelForUser( $user_id );
-	$level_id = $level->ID;
-
-	$level_lock_options = get_option( 'pmproup_' . $level_id, true );
-
-	// Level does not require NFT only to view content.
-	if ( $level_lock_options['nft_required'] === 'No' ) {
-		return $hasaccess;
+function pmproup_should_have_access( $user_id, $levels ) {
+	// If multiple levels are passed in, check each one individually and return if any have access.
+	if ( is_array( $levels ) ) {
+		foreach ( $levels as $level) {
+			if ( pmproup_should_have_access( $user_id, $level ) ) {
+				return true;
+			}
+		}
 	}
 
+	// If the level ID is not positive, then we are checking if a user does not have a level.
+	// We should always return true here.
+	if ( (int) $levels <= 0 ) {
+		return true;
+	}
+
+	// We have a real level to check for. Let's first get a list of all levels for the user.
+	$user_levels = pmpro_getMembershipLevelsForUser( $user_id );
+
+	// And then let's pull the level IDs to simplify our checks.
+	$user_level_ids = wp_list_pluck( $user_levels, 'id' );
+
+	// If the user does not have the level, then we should return false.
+	if ( ! in_array( $levels, $user_level_ids ) ) {
+		return false;
+	}
+
+	// The user does have the level. Let's check if they purchased it with a NFT.
+	if ( empty( get_user_meta( $user_id, 'pmproup_claimed_nft_' . $levels, true ) ) ) {
+		// If the user did not purchase the level with a NFT, we don't need to check if they still have it.
+		return true;
+	}
+
+	// Get the user's wallet so that we can see if they still have the NFT for this level.
 	$wallet = pmproup_try_to_get_wallet( $user_id );
 	
-	// If no wallet is found, let's leave it to PMPro to handle.
-	if ( empty( $level_lock_options ) || empty( $wallet ) ) { /// Improve this check here.
-		return $hasaccess;
+	// If no wallet is found, then we can't confirm that they still have the NFT.
+	if ( empty( $wallet ) ) {
+		return false;
 	}
 
-	// Check if they have lock access.
-	$check_lock = pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
-	
-	// If they hold an active NFT, deny access.
-	if ( ! $check_lock ) {
-		$hasaccess = false;
-	} else {
-		$hasaccess = true;
-	}
-
-	return $hasaccess;
-
+	// We have a wallet. Let's get the lock address for this level and check if the user has access.
+	$level_lock_options = get_option( 'pmproup_' . $levels, true );
+	return pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
 }
