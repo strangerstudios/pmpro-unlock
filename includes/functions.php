@@ -305,6 +305,24 @@ function pmproup_get_auth_code() {
 }
 
 /**
+ * Checking to ensure the member still has access to the NFT periodically. If they don't, set it to false.
+ *
+ * @return bool $has_level A boolean value to check if a user should have a level or not.
+ */
+function pmproup_has_membership_level( $has_level, $user_id, $levels ) {
+
+	// if they don't have access already, just bail.
+	if ( ! $has_level ) {
+		return $has_level;
+	}
+
+	$has_level = pmproup_should_have_access( $user_id, $levels );
+
+	return $has_level;
+}
+add_filter( 'pmpro_has_membership_level', 'pmproup_has_membership_level', 10, 3 );
+
+/**
  * Filter access.
  */
 function pmproup_pmpro_has_membership_access_filter( $hasaccess, $post, $user, $post_levels ) {
