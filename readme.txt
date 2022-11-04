@@ -5,6 +5,7 @@ Requires at least: 5.0
 Tested up to: 6.1
 Requires PHP: 7.2
 Stable tag: 1.0
+License: GPLv3
 
 Connect PMPro with Unlock Protocol. Let users that own an NFT claim access to your WordPress membership site by connecting their crypto wallet for single sign-on.
 
