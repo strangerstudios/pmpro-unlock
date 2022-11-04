@@ -1,17 +1,17 @@
 ![](pmpro-unlock-banner.png)
 
-# [Paid Memberships Pro - Unlock Protocol](https://linktoplugin.com) #
+# [Paid Memberships Pro - Unlock Protocol](https://www.paidmembershipspro.com/add-ons/unlock-protocol-integration) #
 [comment]: # (Generate badges from shields.io, only works for .org plugins to get other stats etc. We'd have to create our own endpoints for Premium plugins)
 
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-red.svg?style=flat-square)
 
 ### Welcome to the Paid Memberships Pro - Unlock Protocol GitHub Repository
-Integrate NFTs with your WordPress membership site. Members may link their crypto wallet to their WordPress account, to claim membership levels that are linked to a NFT and login with single sign on.
+Integrate NFTs with your WordPress membership site. Connect PMPro with Unlock Protocol to let users that own an NFT claim access to your WordPress membership site. Users can also log in via a connected crypto wallet for single sign-on.
 
-For more information please visit [linktoplugin.com](https://linktoplugin.com)
+For more information please visit [https://www.paidmembershipspro.com/add-ons/unlock-protocol-integration](https://www.paidmembershipspro.com/add-ons/unlock-protocol-integration)
 
 ## Installation ##
-For detailed installation steps, visit the [documentation](https://linktoplugin.com) page.
+For detailed installation steps, visit the [documentation](https://www.paidmembershipspro.com/add-ons/unlock-protocol-integration) page.
 
 1. Download the current development ZIP file directly: `https://github.com/strangerstudios/pmpro-unlock/archive/dev.zip`
 
