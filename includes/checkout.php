@@ -12,7 +12,7 @@ function pmproup_add_wallet_to_checkout() {
 
     // Check if we have a wallet ID or not.
     if ( is_wp_error( $wallet ) || ! $wallet ) {
-        echo pmproup_connect_wallet_button();
+        pmproup_connect_wallet_button();
     } else {
         $level_lock_options = get_option( 'pmproup_' . $level_id );
         if ( empty( $level_lock_options ) ) {
@@ -23,11 +23,11 @@ function pmproup_add_wallet_to_checkout() {
         $check_lock = pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
 
         if ( $check_lock ) {
-            echo pmpro_setMessage( 'You hold a valid lock, you may claim this membership level for free.', 'pmpro_success'); ///Change this later on.
+            pmpro_setMessage( esc_html__( 'You hold a valid lock, you may claim this membership level for free.', 'pmpro-unlock' ), 'pmpro_success'); ///Change this later on.
         } else {
             $redirect_uri = get_permalink() . '?level=' . $level_id;
             $checkout_url = pmproup_get_checkout_url( $level_lock_options, $redirect_uri );
-            echo "You can purchase this NFT <a href='" . esc_url( $checkout_url ) . "'>" . esc_html__( 'Click here to buy the NFT', 'pmpro-unlock' ) . "</a>"; 
+            echo esc_html__( 'You can purchase this NFT.', 'pmpro-unlock' ) .  '<a href="' . esc_url( $checkout_url ) . '">' . esc_html__( 'Click here to buy the NFT.', 'pmpro-unlock' ) . '</a>'; 
         }
     }
 }
@@ -128,7 +128,7 @@ function pmproup_registration_checks( $continue ) {
     $continue = pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
     
     if ( ! $continue ) {
-        pmpro_setMessage( 'You need an NFT to claim this membership', 'pmpro_error' ); // Change this.
+        pmpro_setMessage( esc_html__( 'You need an NFT to claim this membership', 'pmpro-unlock' ), 'pmpro_error' ); // Change this.
     } else {
         pmproup_clear_transients( $level_lock_options['lock_address'], $wallet );
     }

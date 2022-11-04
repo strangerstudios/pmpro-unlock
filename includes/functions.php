@@ -1,9 +1,6 @@
 <?php
 // Functions go here for now.
 
-define( 'PMPROUP_CHECKOUT', 'https://app.unlock-protocol.com/checkout' );
-define( 'PMPROUP_AUTH', 'https://locksmith.unlock-protocol.com/api/oauth' );
-
 /**
  * Get the client_id value whenever needed.
  *
@@ -196,7 +193,7 @@ function pmproup_connect_wallet_button( $state = null ) {
     $url = pmproup_get_login_url( esc_url( $redirect_uri ) );
 ?>
     <div class='pmproup-protocol-login-container' style="margin-bottom:20px;">
-        <a href="<?php echo esc_url( $url ); ?>" rel="nofollow" class="pmproup-protocol-connect-button" style="background-color: black;color:white;padding:1em;"><?php echo $button_text; ?></a>
+        <a href="<?php echo esc_url( $url ); ?>" rel="nofollow" class="pmproup-protocol-connect-button" style="background-color: black;color:white;padding:1em;"><?php echo esc_html( $button_text ); ?></a>
     </div>
 <?php
 }

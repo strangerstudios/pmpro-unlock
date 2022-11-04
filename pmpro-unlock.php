@@ -3,7 +3,7 @@
  * Plugin Name:       Paid Memberships Pro - Unlock Protocol Add On
  * Description:       Integrate Paid Memberships Pro with Unlock Protocol.
  * Plugin URI:        https://www.paidmembershipspro.com/add-ons/unlock-protocol-integration
- * Version:           0.1
+ * Version:           1.0
  * Requires at least: 5.0
  * Author:            Paid Memberships Pro
  * Author URI:        https://www.paidmembershipspro.com/
@@ -16,6 +16,8 @@
 // Constants
 define( 'PMPROUP_DIR', dirname( __FILE__ ) );
 define( 'PMPROUP_BASENAME', plugin_basename( __FILE__ ) );
+define( 'PMPROUP_CHECKOUT', 'https://app.unlock-protocol.com/checkout' );
+define( 'PMPROUP_AUTH', 'https://locksmith.unlock-protocol.com/api/oauth' );
 
 // Includes
 require_once( PMPROUP_DIR . '/includes/membership-level-settings.php' );
