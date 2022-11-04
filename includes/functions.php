@@ -331,6 +331,10 @@ function pmproup_pmpro_has_membership_access_filter( $hasaccess, $post, $user, $
 		return $hasaccess;
 	}
 
+	if ( empty ( $post_levels ) ) {
+		return $hasaccess;
+	}
+
 	// Check if the user should have access to the item.
 	$hasaccess = pmproup_should_have_access( $user->ID, wp_list_pluck( $post_levels, 'id' ) );
 
@@ -417,14 +421,6 @@ function pmproup_get_user_by_wallet( $wallet ) {
  */
 function pmproup_should_have_access( $user_id, $levels ) {
 
-	// Get the user's wallet so that we can see if they still have the NFT for this level.
-	$wallet = pmproup_try_to_get_wallet( $user_id );
-	
-	// If no wallet is found, then we can't confirm that they still have the NFT.
-	if ( empty( $wallet ) ) {
-		return false;
-	}
-
 	// If multiple levels are passed in, check each one individually and return if any have access.
 	if ( is_array( $levels ) ) {
 		foreach ( $levels as $level) {
@@ -455,6 +451,14 @@ function pmproup_should_have_access( $user_id, $levels ) {
 	if ( empty( get_user_meta( $user_id, 'pmproup_claimed_nft_' . $levels, true ) ) ) {
 		// If the user did not purchase the level with a NFT, we don't need to check if they still have it.
 		return true;
+	}
+
+	// Get the user's wallet so that we can see if they still have the NFT for this level.
+	$wallet = pmproup_try_to_get_wallet( $user_id );
+	
+	// If no wallet is found, then we can't confirm that they still have the NFT.
+	if ( empty( $wallet ) ) {
+		return false;
 	}
 
 	// We have a wallet. Let's get the lock address for this level and check if the user has access.
