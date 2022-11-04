@@ -6,7 +6,7 @@ Tested up to: 6.1
 Requires PHP: 7.2
 Stable tag: 0.1
 
-Allow people to purchase an NFT during checkout or claim a Paid Memberships Pro membership should they already hold a valid NFT.
+Integrate NFTs with your WordPress membership site. Members may link their crypto wallet to their WordPress account, to claim membership levels that are linked to a NFT and login with single sign on.
 
 == Description ==
 
