@@ -20,6 +20,7 @@ define( 'PMPROUP_CHECKOUT', 'https://app.unlock-protocol.com/checkout' );
 define( 'PMPROUP_AUTH', 'https://locksmith.unlock-protocol.com/api/oauth' );
 
 // Includes
+require_once( PMPROUP_DIR . '/includes/admin.php' );
 require_once( PMPROUP_DIR . '/includes/membership-level-settings.php' );
 require_once( PMPROUP_DIR . '/includes/functions.php' );
 require_once( PMPROUP_DIR . '/includes/profile.php' );
