@@ -2,11 +2,11 @@
 /**
  * Plugin Name:       Paid Memberships Pro - Unlock Protocol Add On
  * Description:       Integrate Paid Memberships Pro with Unlock Protocol.
- * Plugin URI:        https://www.paidmembershipspro.com/TBD
+ * Plugin URI:        https://www.paidmembershipspro.com/add-ons/unlock-protocol-integration
  * Version:           0.1
  * Requires at least: 5.0
- * Author:            Stranger Studios
- * Author URI:        https://strangerstudios.com
+ * Author:            Paid Memberships Pro
+ * Author URI:        https://www.paidmembershipspro.com/
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       pmpro-unlock
