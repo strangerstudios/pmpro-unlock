@@ -63,7 +63,7 @@ add_filter( 'plugin_action_links_' . PMPROUP_BASENAME, 'pmproup_plugin_action_li
 function pmproup_plugin_row_meta( $links, $file ) {
 	if ( strpos( $file, 'pmpro-unlock.php' ) !== false ) {
 		$new_links = array(
-			'<a href="' . esc_url( 'https://www.paidmembershipspro.com/documentation/' ) . '" title="' . esc_attr__( 'View Documentation', 'pmpro-unlock' ) . '">' . esc_html__( 'Docs', 'pmpro-unlock' ) . '</a>',
+			'<a href="' . esc_url( 'https://www.paidmembershipspro.com/add-ons/unlock-protocol-integration/' ) . '" title="' . esc_attr__( 'View Documentation', 'pmpro-unlock' ) . '">' . esc_html__( 'Docs', 'pmpro-unlock' ) . '</a>',
 			'<a href="' . esc_url( 'https://www.paidmembershipspro.com/support/' ) . '" title="' . esc_attr__( 'Visit Customer Support Forum', 'pmpro-unlock' ) . '">' . esc_html__( 'Support', 'pmpro-unlock' ) . '</a>',
 		);
 		$links = array_merge( $links, $new_links );
