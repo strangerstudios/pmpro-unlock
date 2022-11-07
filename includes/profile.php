@@ -13,7 +13,7 @@ function pmproup_profile_connect_wallet( $user ) {
     }
 
     if ( ! is_wp_error( $wallet_address ) && ! empty( $wallet_address ) ) {
-        echo "<p>Your Wallet Address is: " . $wallet_address . "</p>";
+        echo "<p>Your Wallet Address is: " . esc_html( $wallet_address ) . "</p>";
     }
 }
 add_action( 'pmpro_show_user_profile', 'pmproup_profile_connect_wallet', 10, 1 );
