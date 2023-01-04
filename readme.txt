@@ -66,8 +66,11 @@ Your membership level settings now include additional options for linking an NFT
 3. Membership level settings to link an NFT to a membership level
 
 == Changelog ==
-= 1.0.1 0 2011-11-07 =
+= 1.1 - 2022-01-04 =
+* ENHANCEMENT: Ability to remove wallet address from Edit User Profile page or the frontend profile edit page.
+
+= 1.0.1 - 2022-11-07 =
 * SECURITY: Better escaping when showing wallet address on the edit profile page. (Thanks .org plugins team.)
 
-= 1.0 - 2011-11-04 =
+= 1.0 - 2022-11-04 =
 * Initial Release
