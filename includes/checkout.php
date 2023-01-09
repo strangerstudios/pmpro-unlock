@@ -10,15 +10,19 @@ function pmproup_add_wallet_to_checkout() {
 
     $wallet = pmproup_check_save_wallet(); // Get and save the wallet possibly.
 
+    // Only show this if there are level lock options
+
+    $level_lock_options = get_option( 'pmproup_' . $level_id );
+    if ( empty( $level_lock_options ) ) {
+        return;
+    }
+
+
     // Check if we have a wallet ID or not.
     if ( is_wp_error( $wallet ) || ! $wallet ) {
         pmproup_connect_wallet_button();
     } else {
-        $level_lock_options = get_option( 'pmproup_' . $level_id );
-        if ( empty( $level_lock_options ) ) {
-            return;
-        }
-
+        
         // Let's check the validate lock status.
         $check_lock = pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
 
