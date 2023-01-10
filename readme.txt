@@ -66,7 +66,7 @@ Your membership level settings now include additional options for linking an NFT
 3. Membership level settings to link an NFT to a membership level
 
 == Changelog ==
-* 1.1.1 - 2022-01-10 =
+= 1.1.1 - 2022-01-10 =
 * ENHANCEMENT: Only show the "Connect Wallet" at checkout if the membership level allows NFT's to be purchased. If a level does not have a lock assigned, don't show the connect wallet button.
 * BUG FIX: Fixed an issue when authenticating/connecting wallet would redirect to default checkout page and not the actual checkout URL that was being used.
 
