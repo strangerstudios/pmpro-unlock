@@ -175,12 +175,14 @@ function pmproup_validate_lock( $network, $lock_address, $wallet = null ) {
  */
 function pmproup_connect_wallet_button( $state = null ) {
 	global $pmpro_pages;
-	
+
 	if ( is_admin() ) {
 		$redirect_uri = admin_url( basename( $_SERVER['REQUEST_URI'] ) );
-	} elseif( is_page( $pmpro_pages['checkout'] ) ) {
-		if ( isset( $_REQUEST['level'] ) ) {
-			$redirect_uri = add_query_arg( 'level', intval( $_REQUEST['level'] ), get_permalink( $pmpro_pages['checkout'] ) );
+	} elseif( pmpro_is_checkout() ) {
+		// Get the checkout level.
+		$checkout_level = pmpro_getLevelAtCheckout();
+		if ( ! empty( $checkout_level ) ) {
+			$redirect_uri = add_query_arg( 'level', intval( $checkout_level->id ), get_permalink( $pmpro_pages['checkout'] ) );
 		} else {
 			$redirect_uri = get_permalink( $pmpro_pages['checkout'] );
 		}
