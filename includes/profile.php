@@ -12,7 +12,7 @@
 function pmproup_profile_connect_wallet( $user ) {
 
     // Let's try to check and save it on page load.
-    $wallet_address = pmproup_check_save_wallet();
+    $wallet_address = empty( $user->ID ) ? pmproup_check_save_wallet() : pmproup_check_save_wallet( $user->ID );
 
     if ( empty( $wallet_address ) || is_wp_error( $wallet_address ) ) {
         pmproup_connect_wallet_button(); //Show the button, let's try to save it.
