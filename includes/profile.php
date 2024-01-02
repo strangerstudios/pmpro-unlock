@@ -39,7 +39,6 @@ function pmproup_profile_connect_wallet( $user ) {
     }
 }
 add_action( 'pmpro_show_user_profile', 'pmproup_profile_connect_wallet', 10, 1 );
-add_action( 'pmpro_after_membership_level_profile_fields', 'pmproup_profile_connect_wallet', 10, 1 );
 
 /**
  * Delete wallet address if remove option is selected.
@@ -58,3 +57,42 @@ function pmproup_profile_remove_wallet() {
 
 }
 add_action( 'profile_update', 'pmproup_profile_remove_wallet' );
+
+/**
+ * Add a panel to the Edit Member dashboard page.
+ *
+ * @since TBD
+ *
+ * @param array $panels Array of panels.
+ * @return array
+ */
+function pmproup_pmpro_member_edit_panels( $panels ) {
+	// If the class doesn't exist and the abstract class does, require the class.
+	if ( ! class_exists( 'PMProup_Member_Edit_Panel' ) && class_exists( 'PMPro_Member_Edit_Panel' ) ) {
+		require_once( PMPROUP_DIR . '/classes/pmproup-class-member-edit-panel.php' );
+	}
+
+	// If the class exists, add a panel.
+	if ( class_exists( 'PMProup_Member_Edit_Panel' ) ) {
+		$panels[] = new PMProup_Member_Edit_Panel();
+	}
+
+	return $panels;
+}
+
+/**
+ * Hook the correct function for admins editing a member's profile.
+ *
+ * @since TBD
+ */
+function pmproup_hook_edit_member_profile() {
+	// If the `pmpro_member_edit_get_panels()` function exists, add a panel.
+	// Otherwise, use the legacy hook.
+	if ( function_exists( 'pmpro_member_edit_get_panels' ) ) {
+		add_filter( 'pmpro_member_edit_panels', 'pmproup_pmpro_member_edit_panels' );
+	} else {
+		add_action( 'pmpro_after_membership_level_profile_fields', 'pmproup_profile_connect_wallet', 10, 1 );
+		add_action( 'profile_update', 'pmproup_profile_remove_wallet' );
+	}
+}
+add_action( 'admin_init', 'pmproup_hook_edit_member_profile', 0 );

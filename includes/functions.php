@@ -177,7 +177,19 @@ function pmproup_connect_wallet_button( $state = null ) {
 	global $pmpro_pages;
 
 	if ( is_admin() ) {
-		$redirect_uri = admin_url( basename( $_SERVER['REQUEST_URI'] ) );
+		if ( isset( $_REQUEST['page'] ) && $_REQUEST['page'] == 'pmpro-member' ) {
+			// We are on the Member Edit page. We need to pass the panel slug to save properly.
+			$redirect_uri = add_query_arg(
+				array(
+					'page'                    => 'pmpro-member',
+					'user_id'                 => empty( $_REQUEST['user_id'] ) ? '' : intval( $_REQUEST['user_id'] ),
+					'pmpro_member_edit_panel' => 'pmproup',
+				),
+				admin_url( 'admin.php' )
+			);
+		} else {
+			$redirect_uri = admin_url( basename( $_SERVER['REQUEST_URI'] ) );
+		}
 	} elseif( pmpro_is_checkout() ) {
 		// Get the checkout level.
 		$checkout_level = pmpro_getLevelAtCheckout();
