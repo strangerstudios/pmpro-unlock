@@ -43,7 +43,7 @@ add_action( 'pmpro_show_user_profile', 'pmproup_profile_connect_wallet', 10, 1 )
 /**
  * Delete wallet address if remove option is selected.
  * 
- * @since TBD
+ * @since 1.0
  */
 function pmproup_profile_remove_wallet() {
     if ( isset( $_REQUEST['pmpro_unlock_delete_wallet'] ) && ! empty( $_REQUEST['pmpro_unlock_delete_wallet'] ) ) {
@@ -61,7 +61,7 @@ add_action( 'profile_update', 'pmproup_profile_remove_wallet' );
 /**
  * Add a panel to the Edit Member dashboard page.
  *
- * @since TBD
+ * @since 1.2
  *
  * @param array $panels Array of panels.
  * @return array
@@ -83,7 +83,7 @@ function pmproup_pmpro_member_edit_panels( $panels ) {
 /**
  * Hook the correct function for admins editing a member's profile.
  *
- * @since TBD
+ * @since 1.2
  */
 function pmproup_hook_edit_member_profile() {
 	// If the `pmpro_member_edit_get_panels()` function exists, add a panel.
