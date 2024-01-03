@@ -93,15 +93,6 @@ function pmproup_validate_auth_code( $code ) {
 		'redirection' => '30',
 	);
 
-	// If the nonce isn't available or failed to verify stop.
-	if ( ! $params['state'] ) {
-		return false;
-	} else {
-		if ( ! wp_verify_nonce( $params['state'], 'pmproup_state' ) ) {
-			return false;
-		}
-	}
-
 	$response = wp_remote_post( esc_url( PMPROUP_AUTH ), $args );
 
 	if ( is_wp_error( $response ) ) {
