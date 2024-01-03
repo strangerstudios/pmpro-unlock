@@ -1,17 +1,17 @@
-# Copyright (C) 2023 Paid Memberships Pro
-# This file is distributed under the GPLv3.
+# Copyright (C) 2024 Paid Memberships Pro
+# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Paid Memberships Pro - Unlock Protocol Add On 1.0.1\n"
+"Project-Id-Version: Paid Memberships Pro - Unlock Protocol Add On 1.2\n"
 "Report-Msgid-Bugs-To: info@paidmembershipspro.com\n"
 "Last-Translator: Paid Memberships Pro <info@paidmembershipspro.com>\n"
 "Language-Team: Paid Memberships Pro <info@paidmembershipspro.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-01-04T11:56:58+00:00\n"
+"POT-Creation-Date: 2024-01-03T14:23:15+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.7.1\n"
+"X-Generator: WP-CLI 2.9.0\n"
 "X-Domain: pmpro-unlock\n"
 
 #. Plugin Name of the plugin
@@ -32,6 +32,14 @@ msgstr ""
 
 #. Author URI of the plugin
 msgid "https://www.paidmembershipspro.com/"
+msgstr ""
+
+#: classes/pmproup-class-member-edit-panel.php:9
+msgid "Unlock Protocol Integration"
+msgstr ""
+
+#: classes/pmproup-class-member-edit-panel.php:10
+msgid "Save"
 msgstr ""
 
 #: includes/admin.php:24
@@ -62,27 +70,27 @@ msgstr ""
 msgid "Support"
 msgstr ""
 
-#: includes/checkout.php:26
+#: includes/checkout.php:30
 msgid "You hold a valid lock, you may claim this membership level for free."
 msgstr ""
 
-#: includes/checkout.php:30
+#: includes/checkout.php:34
 msgid "You can purchase this NFT."
 msgstr ""
 
-#: includes/checkout.php:30
+#: includes/checkout.php:34
 msgid "Click here to buy the NFT."
 msgstr ""
 
-#: includes/checkout.php:131
+#: includes/checkout.php:135
 msgid "You need an NFT to claim this membership"
 msgstr ""
 
-#: includes/functions.php:185
+#: includes/functions.php:198
 msgid "Log In with Crypto Wallet"
 msgstr ""
 
-#: includes/functions.php:189
+#: includes/functions.php:202
 msgid "Connect Your Crypto Wallet"
 msgstr ""
 
