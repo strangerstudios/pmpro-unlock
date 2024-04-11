@@ -2,7 +2,7 @@
 Contributors: strangerstudios, paidmembershipspro
 Tags: nft, pmpro-unlock, crypto, nft-membership
 Requires at least: 5.2
-Tested up to: 6.4
+Tested up to: 6.5
 Requires PHP: 7.2
 Stable tag: 1.2
 License: GPLv2 or later.
