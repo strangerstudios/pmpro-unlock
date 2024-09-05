@@ -383,6 +383,9 @@ function pmproup_has_lock_access( $network, $lock, $wallet ) {
 		if ( ! is_wp_error( $check_lock ) && hexdec( $check_lock['result'] ) == 1 ) {
 			set_transient( $pmproup_transient_name, true, $transient_expiration ); 
 			$has_lock_access = true;
+		} elseif ( $check_lock['result'] == '0x' ) {
+			set_transient( $pmproup_transient_name, true, $transient_expiration ); 
+			$has_lock_access = true;
 		} else {
 			set_transient( $pmproup_transient_name, false, $transient_expiration ); 
 			$has_lock_access = false;
