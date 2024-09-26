@@ -459,21 +459,21 @@ function pmproup_should_have_access( $user_id, $levels ) {
 
 	// The user does have the level. Let's check if they purchased it with a NFT.
 	if ( empty( get_user_meta( $user_id, 'pmproup_claimed_nft_' . $levels, true ) ) ) {
-		// If the user did not purchase the level with a NFT, we don't need to check if they still have it.
-		return true;
-	}
-
-	// Get the user's wallet so that we can see if they still have the NFT for this level.
-	$wallet = pmproup_try_to_get_wallet( $user_id );
+		// Get the user's wallet so that we can see if they still have the NFT for this level.
+		$wallet = pmproup_try_to_get_wallet( $user_id );
 	
-	// If no wallet is found, then we can't confirm that they still have the NFT.
-	if ( empty( $wallet ) ) {
-		return false;
+		// If no wallet is found, then we can't confirm that they still have the NFT.
+		if ( empty( $wallet ) ) {
+			return false;
+		}
+
+		// We have a wallet. Let's get the lock address for this level and check if the user has access.
+		$level_lock_options = get_option( 'pmproup_' . $levels, true );
+		return pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
 	}
 
-	// We have a wallet. Let's get the lock address for this level and check if the user has access.
-	$level_lock_options = get_option( 'pmproup_' . $levels, true );
-	return pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
+	// If we made it here, return true.
+	return true;
 }
 
 /**
