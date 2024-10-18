@@ -2,19 +2,20 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Paid Memberships Pro - Unlock Protocol Add On 1.2\n"
+"Project-Id-Version: Paid Memberships Pro - Unlock Protocol Add On 1.2.1\n"
 "Report-Msgid-Bugs-To: info@paidmembershipspro.com\n"
 "Last-Translator: Paid Memberships Pro <info@paidmembershipspro.com>\n"
 "Language-Team: Paid Memberships Pro <info@paidmembershipspro.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-01-03T14:23:15+00:00\n"
+"POT-Creation-Date: 2024-10-18T09:47:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.9.0\n"
+"X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: pmpro-unlock\n"
 
 #. Plugin Name of the plugin
+#: pmpro-unlock.php
 msgid "Paid Memberships Pro - Unlock Protocol Add On"
 msgstr ""
 
@@ -23,6 +24,7 @@ msgid "https://www.paidmembershipspro.com/TBD"
 msgstr ""
 
 #. Description of the plugin
+#: pmpro-unlock.php
 msgid "Integrate Paid Memberships Pro with Unlock Protocol."
 msgstr ""
 
@@ -69,14 +71,17 @@ msgid "Require NFT to checkout?"
 msgstr ""
 
 #. Plugin URI of the plugin
+#: pmpro-unlock.php
 msgid "https://www.paidmembershipspro.com/add-ons/unlock-protocol-integration"
 msgstr ""
 
 #. Author of the plugin
+#: pmpro-unlock.php
 msgid "Paid Memberships Pro"
 msgstr ""
 
 #. Author URI of the plugin
+#: pmpro-unlock.php
 msgid "https://www.paidmembershipspro.com/"
 msgstr ""
 
