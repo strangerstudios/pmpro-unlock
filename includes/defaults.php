@@ -52,6 +52,11 @@ function pmproup_networks_list() {
 				'network_id'           => 56,
 				'network_rpc_endpoint' => 'https://bsc-dataseed.binance.org/',
 			),
+			'sepolia' => array(
+				'network_name'         => 'sepolia',
+				'network_id'           => 11155111,
+				'network_rpc_endpoint' => 'https://arbitrum-sepolia.infura.io/v3/299afc265a8e460b842d276b2eba8bb5'
+			),
 		);
 
 		return apply_filters( 'pmproup_network_list', $networks );
