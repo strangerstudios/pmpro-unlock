@@ -69,6 +69,7 @@ Your membership level settings now include additional options for linking an NFT
 = 1.2.1 - 2024-10-18 =
 * FEATURE: Now updating the plugin from paidmembershipspro.com.
 * ENHANCEMENT: Added Dutch language files.
+* ENHANCEMENT: Added "Sepolia" test network.
 
 = 1.2 - 2024-01-03 =
 * ENHANCEMENT: Added better support for Paid Memberships Pro future versions. (@dparker1005)
