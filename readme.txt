@@ -2,9 +2,9 @@
 Contributors: strangerstudios, paidmembershipspro
 Tags: nft, pmpro-unlock, crypto, nft-membership
 Requires at least: 5.2
-Tested up to: 6.5
+Tested up to: 6.6
 Requires PHP: 7.2
-Stable tag: 1.2
+Stable tag: 1.2.1
 License: GPLv2 or later.
 
 Connect PMPro with Unlock Protocol. Let users that own an NFT claim access to your WordPress membership site by connecting their crypto wallet for single sign-on.
@@ -37,7 +37,7 @@ This plugin adds additional settings to your membership levels in Paid Membershi
 
 ### Before Getting Started
 
-You must install and activate [Paid Memberships Pro](https://wordpress.org/plugins/paid-memberships-pro/) and complete the [initial plugin setup steps here](https://www.paidmembershipspro.com/documentation/initial-plugin-setup/).
+You must install and activate [Paid Memberships Pro](https://www.paidmembershipspro.com) and complete the [initial plugin setup steps here](https://www.paidmembershipspro.com/documentation/initial-plugin-setup/).
 
 You should also create an account with [Unlock Protocol](https://unlock-protocol.com).
 
@@ -66,6 +66,10 @@ Your membership level settings now include additional options for linking an NFT
 3. Membership level settings to link an NFT to a membership level
 
 == Changelog ==
+= 1.2.1 - 2024-10-18 =
+* FEATURE: Now updating the plugin from paidmembershipspro.com.
+* ENHANCEMENT: Added Dutch language files.
+
 = 1.2 - 2024-01-03 =
 * ENHANCEMENT: Added better support for Paid Memberships Pro future versions. (@dparker1005)
 * BUG FIX: Show the users wallet when editing their WordPress profile as an admin. (@dparker1005)

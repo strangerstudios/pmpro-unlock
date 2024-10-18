@@ -3,7 +3,7 @@
  * Plugin Name:       Paid Memberships Pro - Unlock Protocol Add On
  * Description:       Integrate Paid Memberships Pro with Unlock Protocol.
  * Plugin URI:        https://www.paidmembershipspro.com/add-ons/unlock-protocol-integration
- * Version:           1.2
+ * Version:           1.2.1
  * Requires at least: 5.0
  * Author:            Paid Memberships Pro
  * Author URI:        https://www.paidmembershipspro.com/
