@@ -1,6 +1,6 @@
 # Contribute to Paid Memberships Pro - Unlock Protocol Integration
 
-Add a description of the product here. Contributions of all kinds are appreciated.
+Paid Memberships Pro - Unlock Protocol Integration connects PMPro with Unlock Protocol so members can claim access to your membership site using NFTs in a connected crypto wallet. Contributions of all kinds are appreciated.
 
 When contributing, please follow these guidelines to ensure things work as smoothly as possible.
 
