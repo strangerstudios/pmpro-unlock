@@ -22,14 +22,19 @@ function pmproup_authenticate_via_wallet( $user ) {
 	}
 
 	// Check if user is trying to log in via a crypto wallet.
-	if ( ! isset( $_REQUEST['state'] ) || ! wp_verify_nonce( sanitize_text_field( $_REQUEST['state'] ), 'pmproup_state') ) {
+	if ( ! pmproup_verify_state() ) {
+		return $user;
+	}
+
+	// Without an auth code there is nothing to authenticate with.
+	if ( empty( pmproup_get_auth_code() ) ) {
 		return $user;
 	}
 
 	// Let's get the wallet address from the auth code.
 	$wallet = pmproup_try_to_get_wallet();
 
-	if ( is_wp_error( $wallet ) ) {
+	if ( is_wp_error( $wallet ) || ! pmproup_is_valid_wallet( $wallet ) ) {
 		$user  = new WP_Error( 'authentication_failed', __( 'ERROR: There was a problem retrieving the wallet address.' ) );
 		return $user;
 	}
@@ -42,4 +47,4 @@ function pmproup_authenticate_via_wallet( $user ) {
 	}
 	return $user;
 }
-add_action( 'authenticate', 'pmproup_authenticate_via_wallet' );
+add_filter( 'authenticate', 'pmproup_authenticate_via_wallet', 10, 1 );

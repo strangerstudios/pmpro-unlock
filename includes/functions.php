@@ -120,8 +120,8 @@ function pmproup_validate_auth_code( $code ) {
 function pmproup_validate_lock( $network, $lock_address, $wallet = null ) {
     $wallet = $wallet ? $wallet : pmproup_try_to_get_wallet();
     
-    // If this is still empty, bail.
-    if ( is_wp_error( $wallet ) ) {
+    // If this is still empty or malformed, bail.
+    if ( is_wp_error( $wallet ) || ! pmproup_is_valid_wallet( $wallet ) ) {
         return false;
     }
 
@@ -240,8 +240,14 @@ function pmproup_check_save_wallet( $user_id = null, $code = null ) {
         $wallet = pmproup_validate_auth_code( $code );
 
         if ( ! is_wp_error( $wallet ) && $user_id ) {
-           update_user_meta( $user_id, 'pmproup_wallet', $wallet ); // Update wallet even if it's false, let's assume for now that people might be unlinking their wallet.
-		   pmpro_unset_session_var( 'pmproup_code' );
+            // Only store a well-formed wallet address. An empty value here means the code
+            // could not be exchanged, not that the user is unlinking their wallet.
+            if ( pmproup_is_valid_wallet( $wallet ) ) {
+                update_user_meta( $user_id, 'pmproup_wallet', $wallet );
+            } else {
+                $wallet = false;
+            }
+            pmpro_unset_session_var( 'pmproup_code' );
         } elseif ( is_wp_error( $wallet ) ) {
 			pmpro_unset_session_var( 'pmproup_code' );
             $wallet = $wallet->get_error_message(); /// Maybe return false?
@@ -286,9 +292,13 @@ function pmproup_try_to_get_wallet( $user_id = null ) {
 	return $wallet;
 }
 
-/// Function to get the $code value from request or session. TODO: Check nonce too.
 /**
  * Helper function to try and get the auth code from either session or query params.
+ *
+ * A code passed in the request is only accepted when it arrives with the `state`
+ * nonce we issued in pmproup_get_login_url(). The nonce is bound to the current
+ * session, so a code minted for another wallet cannot be pushed onto a logged-in
+ * user by having them load a crafted link.
  *
  * @return string $code The oAuth code when connecting a wallet.
  */
@@ -300,8 +310,14 @@ function pmproup_get_auth_code() {
 	$code = '';
 
 	// Let's try to overwrite any session data with REQUEST param stuff.
-	if ( isset( $_REQUEST['code' ] ) ) {
+	if ( isset( $_REQUEST['code'] ) ) {
 		pmpro_unset_session_var( 'pmproup_code' ); // Let's try unset any SESSION data we might have.
+
+		// Only accept a code that came back with the state nonce we issued.
+		if ( ! pmproup_verify_state() ) {
+			return '';
+		}
+
 		$code = sanitize_text_field( $_REQUEST['code'] );
 		pmpro_set_session_var( 'pmproup_code', $code );
 	}
@@ -312,6 +328,33 @@ function pmproup_get_auth_code() {
 	}
 
 	return $code;
+}
+
+/**
+ * Verify the `state` value returned by Unlock Protocol matches the nonce we issued.
+ *
+ * @since 1.2.2
+ *
+ * @return bool True if the state nonce in the request is valid.
+ */
+function pmproup_verify_state() {
+	if ( empty( $_REQUEST['state'] ) ) {
+		return false;
+	}
+
+	return (bool) wp_verify_nonce( sanitize_text_field( $_REQUEST['state'] ), 'pmproup_state' );
+}
+
+/**
+ * Check that a value looks like an Ethereum wallet address (0x followed by 40 hex characters).
+ *
+ * @since 1.2.2
+ *
+ * @param mixed $wallet The value to check.
+ * @return bool True if the value is a well-formed wallet address.
+ */
+function pmproup_is_valid_wallet( $wallet ) {
+	return is_string( $wallet ) && (bool) preg_match( '/^0x[a-fA-F0-9]{40}$/', $wallet );
 }
 
 /**
@@ -368,6 +411,11 @@ function pmproup_has_lock_access( $network, $lock, $wallet ) {
 	$wallet = sanitize_text_field( $wallet );
 	$has_lock_access = false;
 
+	// Never grant access without a well-formed wallet and lock address.
+	if ( ! pmproup_is_valid_wallet( $wallet ) || empty( $lock ) || empty( $network ) ) {
+		return apply_filters( 'pmproup_has_lock_access', false, $network, $lock, $wallet );
+	}
+
 	// Last 8 digits of the lock and wallet for the transient, for reference.
 	$ref_lock = substr( $lock, -8 );
 	$ref_wallet = substr( $wallet, -8 );
@@ -380,10 +428,9 @@ function pmproup_has_lock_access( $network, $lock, $wallet ) {
 	
 		$check_lock = pmproup_validate_lock( $network, $lock, $wallet );
 
-		if ( ! is_wp_error( $check_lock ) && hexdec( $check_lock['result'] ) == 1 ) {
-			set_transient( $pmproup_transient_name, true, $transient_expiration ); 
-			$has_lock_access = true;
-		} elseif ( $check_lock['result'] == '0x' ) {
+		// Only a successful eth_call that returns a truthy value counts as holding a key.
+		// An error, an empty response ('0x' - no contract at that address) or a missing result all fail closed.
+		if ( ! is_wp_error( $check_lock ) && is_array( $check_lock ) && ! empty( $check_lock['result'] ) && '0x' !== $check_lock['result'] && hexdec( $check_lock['result'] ) == 1 ) {
 			set_transient( $pmproup_transient_name, true, $transient_expiration ); 
 			$has_lock_access = true;
 		} else {
@@ -406,6 +453,11 @@ function pmproup_has_lock_access( $network, $lock, $wallet ) {
  * @return object|bool $user Returns the user object or false if the user isn't found.
  */
 function pmproup_get_user_by_wallet( $wallet ) {
+	// An empty meta_value is dropped by WP_Meta_Query and would match any user with a linked wallet.
+	if ( ! pmproup_is_valid_wallet( $wallet ) ) {
+		return false;
+	}
+
 	$args = array(
 		'meta_key'     => 'pmproup_wallet',
 		'meta_value'   => sanitize_text_field( $wallet ),
