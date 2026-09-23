@@ -1,6 +1,6 @@
 <?php
 
-class PMProup_Member_Edit_Panel extends PMPro_Member_Edit_Panel {
+class PMPro_Unlock_Member_Edit_Panel extends PMPro_Member_Edit_Panel {
 	/**
 	 * Set up the panel.
 	 */
@@ -14,7 +14,7 @@ class PMProup_Member_Edit_Panel extends PMPro_Member_Edit_Panel {
 	 * Display the panel contents.
 	 */
 	protected function display_panel_contents() {
-		pmproup_profile_connect_wallet( self::get_user() );
+		pmpro_unlock_profile_connect_wallet( self::get_user() );
 	}
 
     /**
@@ -23,7 +23,7 @@ class PMProup_Member_Edit_Panel extends PMPro_Member_Edit_Panel {
     public function save() {
         $user = self::get_user();
         if ( ! empty( $user->ID ) ) {
-            pmproup_profile_remove_wallet( $user->ID );
+            pmpro_unlock_profile_remove_wallet( $user->ID );
         }
     }
 }
