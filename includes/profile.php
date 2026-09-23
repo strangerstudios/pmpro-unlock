@@ -45,18 +45,24 @@ add_action( 'pmpro_show_user_profile', 'pmproup_profile_connect_wallet', 10, 1 )
  * 
  * @since 1.0
  */
-function pmproup_profile_remove_wallet() {
-    if ( isset( $_REQUEST['pmpro_unlock_delete_wallet'] ) && ! empty( $_REQUEST['pmpro_unlock_delete_wallet'] ) ) {
-
-        if ( ! empty( $_REQUEST['user_id'] ) ) {
-			$user_id = intval( $_REQUEST['user_id'] );
-		}
-
-        delete_user_meta( $user_id, 'pmproup_wallet' );
+function pmproup_profile_remove_wallet( $user_id = 0 ) {
+    if ( empty( $_REQUEST['pmpro_unlock_delete_wallet'] ) ) {
+        return;
     }
 
+    $user_id = intval( $user_id );
+    if ( $user_id <= 0 ) {
+        return;
+    }
+
+    // Only the user themselves or someone who may edit them can unlink the wallet.
+    if ( get_current_user_id() !== $user_id && ! current_user_can( 'edit_user', $user_id ) ) {
+        return;
+    }
+
+    delete_user_meta( $user_id, 'pmproup_wallet' );
 }
-add_action( 'profile_update', 'pmproup_profile_remove_wallet' );
+add_action( 'profile_update', 'pmproup_profile_remove_wallet', 10, 1 );
 
 /**
  * Add a panel to the Edit Member dashboard page.

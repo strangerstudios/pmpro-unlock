@@ -21,6 +21,9 @@ class PMProup_Member_Edit_Panel extends PMPro_Member_Edit_Panel {
      * Remove the wallet address if the remove option is selected.
      */
     public function save() {
-        pmproup_profile_remove_wallet();
+        $user = self::get_user();
+        if ( ! empty( $user->ID ) ) {
+            pmproup_profile_remove_wallet( $user->ID );
+        }
     }
 }
