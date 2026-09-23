@@ -6,10 +6,10 @@
 /**
  * Display Settings for Unlock Protocol Integration.
  */
-function pmproup_level_settings() {
+function pmpro_unlock_level_settings() {
 
     // Unlock Protocol settings.
-    $networks = pmproup_networks_list();
+    $networks = pmpro_unlock_networks_list();
     array_unshift( $networks, array( 'network_name' => '' ) ); // Insert first option as "-" to array.
     
     if ( isset( $_REQUEST['edit'] ) ) {
@@ -17,11 +17,11 @@ function pmproup_level_settings() {
     }
 
     // Get level settings and configure variables to be used.
-    $pmproup_settings = get_option( 'pmproup_' . $level_id );
-    if ( is_array( $pmproup_settings ) ) {
-        $network_value = $pmproup_settings['network_name'];
-        $lock_address_value = $pmproup_settings['lock_address'];
-        $nft_required = $pmproup_settings['nft_required'];
+    $pmpro_unlock_settings = get_option( 'pmproup_' . $level_id );
+    if ( is_array( $pmpro_unlock_settings ) ) {
+        $network_value = $pmpro_unlock_settings['network_name'];
+        $lock_address_value = $pmpro_unlock_settings['lock_address'];
+        $nft_required = $pmpro_unlock_settings['nft_required'];
     } else {
         $network_value = '';
         $lock_address_value = '';
@@ -67,37 +67,37 @@ function pmproup_level_settings() {
     </table>
     <?php
 }
-add_action( 'pmpro_membership_level_after_other_settings', 'pmproup_level_settings' );
+add_action( 'pmpro_membership_level_after_other_settings', 'pmpro_unlock_level_settings' );
 
 /**
  * Save settings for Unlock Protocol.
  */
-function pmproup_save_membership_level( $level_id ) {
+function pmpro_unlock_save_membership_level( $level_id ) {
     
     if ( $level_id <= 0 ) {
 		return;
 	}
 
-    $available_networks = pmproup_networks_list();
+    $available_networks = pmpro_unlock_networks_list();
     $network = sanitize_text_field( $_REQUEST['pmproup-network'] );
     $lock_address = sanitize_text_field( $_REQUEST['pmproup-lock' ] );
     $nft_required = sanitize_text_field( $_REQUEST['pmproup-nft-required'] );
 
     // Save the entire network details for this lock.
-    $pmproup_settings = array( 'network_name' => $network, 'lock_address' => $lock_address, 'nft_required' => $nft_required );
+    $pmpro_unlock_settings = array( 'network_name' => $network, 'lock_address' => $lock_address, 'nft_required' => $nft_required );
 
     // Make sure the network settings actually exist and add them to the array.
     if ( ! empty( $network ) && isset( $available_networks[$network] ) ) {
-        $pmproup_settings['network_rpc'] = $available_networks[$network]['network_rpc_endpoint'];
-        $pmproup_settings['network_id'] = $available_networks[$network]['network_id'];
+        $pmpro_unlock_settings['network_rpc'] = $available_networks[$network]['network_rpc_endpoint'];
+        $pmpro_unlock_settings['network_id'] = $available_networks[$network]['network_id'];
     }
 
     // Save or delete options during level save.
     if ( $network ) {
-        update_option( 'pmproup_' . $level_id, $pmproup_settings, 'no' );
+        update_option( 'pmproup_' . $level_id, $pmpro_unlock_settings, 'no' );
     } else {
         delete_option( 'pmproup_' . $level_id );
     }
 
 }
-add_action( 'pmpro_save_membership_level', 'pmproup_save_membership_level', 10, 1 );
+add_action( 'pmpro_save_membership_level', 'pmpro_unlock_save_membership_level', 10, 1 );

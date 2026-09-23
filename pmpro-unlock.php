@@ -14,25 +14,26 @@
  */
 
 // Constants
-define( 'PMPROUP_DIR', dirname( __FILE__ ) );
-define( 'PMPROUP_BASENAME', plugin_basename( __FILE__ ) );
-define( 'PMPROUP_CHECKOUT', 'https://app.unlock-protocol.com/checkout' );
-define( 'PMPROUP_AUTH', 'https://locksmith.unlock-protocol.com/api/oauth' );
+define( 'PMPRO_UNLOCK_DIR', dirname( __FILE__ ) );
+define( 'PMPRO_UNLOCK_BASENAME', plugin_basename( __FILE__ ) );
+define( 'PMPRO_UNLOCK_CHECKOUT', 'https://app.unlock-protocol.com/checkout' );
+define( 'PMPRO_UNLOCK_AUTH', 'https://locksmith.unlock-protocol.com/api/oauth' );
 
 // Includes
-require_once( PMPROUP_DIR . '/includes/admin.php' );
-require_once( PMPROUP_DIR . '/includes/membership-level-settings.php' );
-require_once( PMPROUP_DIR . '/includes/functions.php' );
-require_once( PMPROUP_DIR . '/includes/profile.php' );
-require_once( PMPROUP_DIR . '/includes/checkout.php' );
-require_once( PMPROUP_DIR . '/includes/defaults.php' );
-require_once( PMPROUP_DIR . '/includes/login.php' );
+require_once( PMPRO_UNLOCK_DIR . '/includes/admin.php' );
+require_once( PMPRO_UNLOCK_DIR . '/includes/membership-level-settings.php' );
+require_once( PMPRO_UNLOCK_DIR . '/includes/functions.php' );
+require_once( PMPRO_UNLOCK_DIR . '/includes/profile.php' );
+require_once( PMPRO_UNLOCK_DIR . '/includes/checkout.php' );
+require_once( PMPRO_UNLOCK_DIR . '/includes/defaults.php' );
+require_once( PMPRO_UNLOCK_DIR . '/includes/login.php' );
+require_once( PMPRO_UNLOCK_DIR . '/includes/deprecated.php' );
 
 // Bare basic functions can go here.
 /**
  * Initialize the plugin's text domain for translations.
  */
-function pmproup_load_plugin_textdomain() {
+function pmpro_unlock_load_plugin_textdomain() {
 	load_plugin_textdomain( 'pmpro-unlock', false, basename( dirname( __FILE__ ) ) . '/languages' ); 
 }
-add_action( 'plugins_loaded', 'pmproup_load_plugin_textdomain' );
+add_action( 'plugins_loaded', 'pmpro_unlock_load_plugin_textdomain' );

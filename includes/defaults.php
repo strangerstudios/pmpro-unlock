@@ -5,7 +5,7 @@
  *
  * @return array $networks A list of cryptocurrency networks, their names, chain ID's and RPC endpoints.
  */
-function pmproup_networks_list() {
+function pmpro_unlock_networks_list() {
 		$networks = array(
 			'mainnet'  => array(
 				'network_name'         => 'mainnet',
@@ -59,5 +59,5 @@ function pmproup_networks_list() {
 			),
 		);
 
-		return apply_filters( 'pmproup_network_list', $networks );
+		return apply_filters( 'pmpro_unlock_network_list', $networks );
 	}

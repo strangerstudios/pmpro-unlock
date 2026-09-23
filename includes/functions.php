@@ -6,7 +6,7 @@
  *
  * @return string The domain name is used as the client_id for Unlock Protocol.
  */
-function pmproup_get_client_id() {
+function pmpro_unlock_get_client_id() {
 	$parsed_url =  wp_parse_url( home_url() );
 	if ( ! empty( $parsed_url['host'] ) && ! empty( $parsed_url['port'] ) ) {
 		return $parsed_url['host'] . ':' . $parsed_url['port'];
@@ -18,26 +18,26 @@ function pmproup_get_client_id() {
 
 
 // Get default redirect URL (Login page.)
-function pmproup_get_redirect_uri() {
+function pmpro_unlock_get_redirect_uri() {
 	return apply_filters( 'unlock_protocol_get_redirect_uri', wp_login_url() );
 }
 
 // Generate the Login URL we need.
-function pmproup_get_login_url( $redirect_uri = null ) {
+function pmpro_unlock_get_login_url( $redirect_uri = null ) {
 	$login_url = add_query_arg(
 		array(
-			'client_id'    => pmproup_get_client_id(),
-			'redirect_uri' => $redirect_uri ? $redirect_uri : pmproup_get_redirect_uri(),
+			'client_id'    => pmpro_unlock_get_client_id(),
+			'redirect_uri' => $redirect_uri ? $redirect_uri : pmpro_unlock_get_redirect_uri(),
 			'state'  => wp_create_nonce( 'pmproup_state' ),
 		),
-		PMPROUP_CHECKOUT
+		PMPRO_UNLOCK_CHECKOUT
 	);
 
 	return apply_filters( 'unlock_protocol_get_login_url', esc_url( $login_url ) );
 }
 
 //Generate the purchase URL for the level.
-function pmproup_get_checkout_url( $lock, $redirect_uri ) {
+function pmpro_unlock_get_checkout_url( $lock, $redirect_uri ) {
 
 	// Build the checkout array to buy the NFT.
     $lock_checkout = array();
@@ -46,7 +46,7 @@ function pmproup_get_checkout_url( $lock, $redirect_uri ) {
 	$lock_checkout[$lock_address] = array( 'network' => $lock['network_id'] );
 
 		$paywall_config = apply_filters(
-			'pmproup_paywall_config',
+			'pmpro_unlock_paywall_config',
 			array(
 				'locks'       => $lock_checkout,
 				'pessimistic' => true,
@@ -58,7 +58,7 @@ function pmproup_get_checkout_url( $lock, $redirect_uri ) {
 				'redirectUri'   => $redirect_uri,
 				'paywallConfig' => urlencode( wp_json_encode( $paywall_config ) ),
 			),
-			PMPROUP_CHECKOUT
+			PMPRO_UNLOCK_CHECKOUT
 		);
 
 
@@ -72,17 +72,17 @@ function pmproup_get_checkout_url( $lock, $redirect_uri ) {
  * @param [type] $code
  * @return void
  */
-function pmproup_validate_auth_code( $code ) {
+function pmpro_unlock_validate_auth_code( $code ) {
 	if ( empty( $_REQUEST['state'] ) ) {
 		return false;
 	}
 
 	$params = apply_filters(
-		'pmproup_validate_auth_code_params',
+		'pmpro_unlock_validate_auth_code_params',
 		array(
 			'grant_type'   => 'authorization_code',
-			'client_id'    => pmproup_get_client_id(),
-			'redirect_uri' => pmproup_get_redirect_uri(),
+			'client_id'    => pmpro_unlock_get_client_id(),
+			'redirect_uri' => pmpro_unlock_get_redirect_uri(),
 			'code'         => sanitize_text_field( $code ),
 			'state'		=> sanitize_text_field( $_REQUEST['state'] )
 		)
@@ -93,7 +93,7 @@ function pmproup_validate_auth_code( $code ) {
 		'redirection' => '30',
 	);
 
-	$response = wp_remote_post( esc_url( PMPROUP_AUTH ), $args );
+	$response = wp_remote_post( esc_url( PMPRO_UNLOCK_AUTH ), $args );
 
 	if ( is_wp_error( $response ) ) {
 		return new \WP_Error( 'unlock_validate_auth_code', $response );
@@ -117,18 +117,18 @@ function pmproup_validate_auth_code( $code ) {
  * @param [type] $wallet
  * @return void
  */
-function pmproup_validate_lock( $network, $lock_address, $wallet = null ) {
-    $wallet = $wallet ? $wallet : pmproup_try_to_get_wallet();
+function pmpro_unlock_validate_lock( $network, $lock_address, $wallet = null ) {
+    $wallet = $wallet ? $wallet : pmpro_unlock_try_to_get_wallet();
     
     // If this is still empty or malformed, bail.
-    if ( is_wp_error( $wallet ) || ! pmproup_is_valid_wallet( $wallet ) ) {
+    if ( is_wp_error( $wallet ) || ! pmpro_unlock_is_valid_wallet( $wallet ) ) {
         return false;
     }
 
     $wallet = substr( $wallet, 2 );
 
     $params = apply_filters(
-			'pmproup_user_validate_params',
+			'pmpro_unlock_user_validate_params',
 			array(
 				'method'  => 'eth_call',
 				'params'  => array(
@@ -164,7 +164,7 @@ function pmproup_validate_lock( $network, $lock_address, $wallet = null ) {
 /**
  * Generate a button to connect wallet to Unlock Protocol.
  */
-function pmproup_connect_wallet_button( $state = null ) {
+function pmpro_unlock_connect_wallet_button( $state = null ) {
 	global $pmpro_pages;
 
 	if ( is_admin() ) {
@@ -203,7 +203,7 @@ function pmproup_connect_wallet_button( $state = null ) {
 			break;
 	}
 	
-    $url = pmproup_get_login_url( esc_url( $redirect_uri ) );
+    $url = pmpro_unlock_get_login_url( esc_url( $redirect_uri ) );
 ?>
     <div class='pmproup-protocol-login-container' style="margin-bottom:20px;">
         <a href="<?php echo esc_url( $url ); ?>" rel="nofollow" class="pmproup-protocol-connect-button" style="background-color: black;color:white;padding:1em;"><?php echo esc_html( $button_text ); ?></a>
@@ -216,10 +216,10 @@ function pmproup_connect_wallet_button( $state = null ) {
  * 
  * @return string|bool $wallet The user's recently saved wallet address. Returns false if no wallet address is found/saved.
  */
-function pmproup_check_save_wallet( $user_id = null, $code = null ) {
+function pmpro_unlock_check_save_wallet( $user_id = null, $code = null ) {
 	// Let's check code from REQUEST param or SESSION.
     if ( empty( $code ) ) {
-		$code = pmproup_get_auth_code();
+		$code = pmpro_unlock_get_auth_code();
     }
 
     $wallet = false; // Default value.
@@ -237,12 +237,12 @@ function pmproup_check_save_wallet( $user_id = null, $code = null ) {
 
     // Let's try save/update the wallet to user meta for reference if we see a 'code' query param
     if ( $code ) {
-        $wallet = pmproup_validate_auth_code( $code );
+        $wallet = pmpro_unlock_validate_auth_code( $code );
 
         if ( ! is_wp_error( $wallet ) && $user_id ) {
             // Only store a well-formed wallet address. An empty value here means the code
             // could not be exchanged, not that the user is unlinking their wallet.
-            if ( pmproup_is_valid_wallet( $wallet ) ) {
+            if ( pmpro_unlock_is_valid_wallet( $wallet ) ) {
                 update_user_meta( $user_id, 'pmproup_wallet', $wallet );
             } else {
                 $wallet = false;
@@ -263,7 +263,7 @@ function pmproup_check_save_wallet( $user_id = null, $code = null ) {
  * @param int $user_id The user's WordPress ID if available.
  * @return string $wallet The user's linked wallet address.
  */
-function pmproup_try_to_get_wallet( $user_id = null ) {
+function pmpro_unlock_try_to_get_wallet( $user_id = null ) {
 	if ( empty( $user_id ) ) {
 		global $current_user;
 		$user_id = $current_user->ID;
@@ -283,9 +283,9 @@ function pmproup_try_to_get_wallet( $user_id = null ) {
 	}
 
 	if ( empty( $wallet ) ) {
-		$code = pmproup_get_auth_code();	
+		$code = pmpro_unlock_get_auth_code();	
 		if ( $code ) {
-			$wallet = pmproup_validate_auth_code( $code );
+			$wallet = pmpro_unlock_validate_auth_code( $code );
 		}
 	}
 
@@ -296,13 +296,13 @@ function pmproup_try_to_get_wallet( $user_id = null ) {
  * Helper function to try and get the auth code from either session or query params.
  *
  * A code passed in the request is only accepted when it arrives with the `state`
- * nonce we issued in pmproup_get_login_url(). The nonce is bound to the current
+ * nonce we issued in pmpro_unlock_get_login_url(). The nonce is bound to the current
  * session, so a code minted for another wallet cannot be pushed onto a logged-in
  * user by having them load a crafted link.
  *
  * @return string $code The oAuth code when connecting a wallet.
  */
-function pmproup_get_auth_code() {
+function pmpro_unlock_get_auth_code() {
 	if ( ! function_exists( 'pmpro_unset_session_var' ) ) {
 		return '';
 	}
@@ -314,7 +314,7 @@ function pmproup_get_auth_code() {
 		pmpro_unset_session_var( 'pmproup_code' ); // Let's try unset any SESSION data we might have.
 
 		// Only accept a code that came back with the state nonce we issued.
-		if ( ! pmproup_verify_state() ) {
+		if ( ! pmpro_unlock_verify_state() ) {
 			return '';
 		}
 
@@ -337,7 +337,7 @@ function pmproup_get_auth_code() {
  *
  * @return bool True if the state nonce in the request is valid.
  */
-function pmproup_verify_state() {
+function pmpro_unlock_verify_state() {
 	if ( empty( $_REQUEST['state'] ) ) {
 		return false;
 	}
@@ -353,7 +353,7 @@ function pmproup_verify_state() {
  * @param mixed $wallet The value to check.
  * @return bool True if the value is a well-formed wallet address.
  */
-function pmproup_is_valid_wallet( $wallet ) {
+function pmpro_unlock_is_valid_wallet( $wallet ) {
 	return is_string( $wallet ) && (bool) preg_match( '/^0x[a-fA-F0-9]{40}$/', $wallet );
 }
 
@@ -362,23 +362,23 @@ function pmproup_is_valid_wallet( $wallet ) {
  *
  * @return bool $has_level A boolean value to check if a user should have a level or not.
  */
-function pmproup_has_membership_level( $has_level, $user_id, $levels ) {
+function pmpro_unlock_has_membership_level( $has_level, $user_id, $levels ) {
 
 	// if they don't have access already, just bail.
 	if ( ! $has_level ) {
 		return $has_level;
 	}
 
-	$has_level = pmproup_should_have_access( $user_id, $levels );
+	$has_level = pmpro_unlock_should_have_access( $user_id, $levels );
 
 	return $has_level;
 }
-add_filter( 'pmpro_has_membership_level', 'pmproup_has_membership_level', 10, 3 );
+add_filter( 'pmpro_has_membership_level', 'pmpro_unlock_has_membership_level', 10, 3 );
 
 /**
  * Filter access.
  */
-function pmproup_pmpro_has_membership_access_filter( $hasaccess, $post, $user, $post_levels ) {
+function pmpro_unlock_pmpro_has_membership_access_filter( $hasaccess, $post, $user, $post_levels ) {
 	// Bail if member has no access.
 	if ( ! $hasaccess ) {
 		return $hasaccess;
@@ -389,12 +389,12 @@ function pmproup_pmpro_has_membership_access_filter( $hasaccess, $post, $user, $
 	}
 
 	// Check if the user should have access to the item.
-	$hasaccess = pmproup_should_have_access( $user->ID, wp_list_pluck( $post_levels, 'id' ) );
+	$hasaccess = pmpro_unlock_should_have_access( $user->ID, wp_list_pluck( $post_levels, 'id' ) );
 
 
 	return $hasaccess;
 }
-add_filter( 'pmpro_has_membership_access_filter', 'pmproup_pmpro_has_membership_access_filter', 10, 4 );
+add_filter( 'pmpro_has_membership_access_filter', 'pmpro_unlock_pmpro_has_membership_access_filter', 10, 4 );
 
 /**
  * Undocumented function
@@ -404,7 +404,7 @@ add_filter( 'pmpro_has_membership_access_filter', 'pmproup_pmpro_has_membership_
  * @param string $wallet The user's crypto wallet address.
  * @return bool $has_lock_access Check Unlock Protocols network to ensure the wallet address has access to a lock.
  */
-function pmproup_has_lock_access( $network, $lock, $wallet ) {
+function pmpro_unlock_has_lock_access( $network, $lock, $wallet ) {
 
 	$network = sanitize_url( $network );
 	$lock = sanitize_text_field( $lock );
@@ -412,38 +412,38 @@ function pmproup_has_lock_access( $network, $lock, $wallet ) {
 	$has_lock_access = false;
 
 	// Never grant access without a well-formed wallet and lock address.
-	if ( ! pmproup_is_valid_wallet( $wallet ) || empty( $lock ) || empty( $network ) ) {
-		return apply_filters( 'pmproup_has_lock_access', false, $network, $lock, $wallet );
+	if ( ! pmpro_unlock_is_valid_wallet( $wallet ) || empty( $lock ) || empty( $network ) ) {
+		return apply_filters( 'pmpro_unlock_has_lock_access', false, $network, $lock, $wallet );
 	}
 
 	// Last 8 digits of the lock and wallet for the transient, for reference.
 	$ref_lock = substr( $lock, -8 );
 	$ref_wallet = substr( $wallet, -8 );
 
-	$pmproup_transient_name = 'pmproup_has_lock_' . $ref_lock . '_' . $ref_wallet;
-	$transient_expiration = apply_filters( 'pmproup_has_lock_access_transient_expiration', 30 * MINUTE_IN_SECONDS ); // 30 minutes.
+	$pmpro_unlock_transient_name = 'pmproup_has_lock_' . $ref_lock . '_' . $ref_wallet;
+	$transient_expiration = apply_filters( 'pmpro_unlock_has_lock_access_transient_expiration', 30 * MINUTE_IN_SECONDS ); // 30 minutes.
 
 	// Check if the transient is available, if not try to get lock access and cache the results.
-	if ( empty( get_transient( $pmproup_transient_name ) ) ) {
+	if ( empty( get_transient( $pmpro_unlock_transient_name ) ) ) {
 	
-		$check_lock = pmproup_validate_lock( $network, $lock, $wallet );
+		$check_lock = pmpro_unlock_validate_lock( $network, $lock, $wallet );
 
 		// Only a successful eth_call that returns a truthy value counts as holding a key.
 		// An error, an empty response ('0x' - no contract at that address) or a missing result all fail closed.
 		if ( ! is_wp_error( $check_lock ) && is_array( $check_lock ) && ! empty( $check_lock['result'] ) && '0x' !== $check_lock['result'] && hexdec( $check_lock['result'] ) == 1 ) {
-			set_transient( $pmproup_transient_name, true, $transient_expiration ); 
+			set_transient( $pmpro_unlock_transient_name, true, $transient_expiration ); 
 			$has_lock_access = true;
 		} else {
-			set_transient( $pmproup_transient_name, false, $transient_expiration ); 
+			set_transient( $pmpro_unlock_transient_name, false, $transient_expiration ); 
 			$has_lock_access = false;
 		}
 
 	} else {
 		// Get the lock access from the transient which will be either true or false.
-		$has_lock_access = get_transient( $pmproup_transient_name );
+		$has_lock_access = get_transient( $pmpro_unlock_transient_name );
 	}
 
-	return apply_filters( 'pmproup_has_lock_access', $has_lock_access, $network, $lock, $wallet );
+	return apply_filters( 'pmpro_unlock_has_lock_access', $has_lock_access, $network, $lock, $wallet );
 }
 
 /**
@@ -452,9 +452,9 @@ function pmproup_has_lock_access( $network, $lock, $wallet ) {
  * @param [type] $wallet
  * @return object|bool $user Returns the user object or false if the user isn't found.
  */
-function pmproup_get_user_by_wallet( $wallet ) {
+function pmpro_unlock_get_user_by_wallet( $wallet ) {
 	// An empty meta_value is dropped by WP_Meta_Query and would match any user with a linked wallet.
-	if ( ! pmproup_is_valid_wallet( $wallet ) ) {
+	if ( ! pmpro_unlock_is_valid_wallet( $wallet ) ) {
 		return false;
 	}
 
@@ -484,12 +484,12 @@ function pmproup_get_user_by_wallet( $wallet ) {
  *
  * @return bool $hasaccess Returns true or false based on whether the user has access or not.
  */
-function pmproup_should_have_access( $user_id, $levels ) {
+function pmpro_unlock_should_have_access( $user_id, $levels ) {
 
 	// If multiple levels are passed in, check each one individually and return if any have access.
 	if ( is_array( $levels ) ) {
 		foreach ( $levels as $level) {
-			if ( pmproup_should_have_access( $user_id, $level ) ) {
+			if ( pmpro_unlock_should_have_access( $user_id, $level ) ) {
 				return true;
 			}
 		}
@@ -525,7 +525,7 @@ function pmproup_should_have_access( $user_id, $levels ) {
 	}
 
 	// Get the user's wallet so that we can see if they still have the NFT for this level.
-	$wallet = pmproup_try_to_get_wallet( $user_id );
+	$wallet = pmpro_unlock_try_to_get_wallet( $user_id );
 
 	// If no wallet is found, then we can't confirm that they still have the NFT.
 	if ( empty( $wallet ) ) {
@@ -533,7 +533,7 @@ function pmproup_should_have_access( $user_id, $levels ) {
 	}
 
 	// We have a wallet. Check if the user still has access to the lock for this level.
-	return pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
+	return pmpro_unlock_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
 }
 
 /**
@@ -542,12 +542,12 @@ function pmproup_should_have_access( $user_id, $levels ) {
  * @param string $lock The NFT Lock address.
  * @param string $wallet The user's wallet address.
  */
-function pmproup_clear_transients( $lock, $wallet ) {
+function pmpro_unlock_clear_transients( $lock, $wallet ) {
 	// Last 8 digits of the lock and wallet for the transient, for reference.
 	$ref_lock = substr( $lock, -8 );
 	$ref_wallet = substr( $wallet, -8 );
 
-	$pmproup_transient_name = 'pmproup_has_lock_' . $ref_lock . '_' . $ref_wallet;
+	$pmpro_unlock_transient_name = 'pmproup_has_lock_' . $ref_lock . '_' . $ref_wallet;
 
-	delete_transient( $pmproup_transient_name );
+	delete_transient( $pmpro_unlock_transient_name );
 }
