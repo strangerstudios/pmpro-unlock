@@ -5,13 +5,13 @@
  * This plugin used to share the pmproup_ prefix with PMPro User Pages. Everything was renamed
  * to pmpro_unlock_, and the old names are kept here for custom code that still uses them.
  *
- * @since TBD
+ * @since 1.3
  */
 
 /**
  * Call the pmpro_unlock_ version of a deprecated pmproup_ function.
  *
- * @since TBD
+ * @since 1.3
  *
  * @param string $old_function The deprecated function name.
  * @param array  $args The arguments passed to the deprecated function.
@@ -19,7 +19,7 @@
  */
 function pmpro_unlock_call_deprecated_function( $old_function, $args ) {
 	$new_function = 'pmpro_unlock_' . substr( $old_function, strlen( 'pmproup_' ) );
-	_deprecated_function( esc_html( $old_function ), 'TBD', esc_html( $new_function ) );
+	_deprecated_function( esc_html( $old_function ), '1.3', esc_html( $new_function ) );
 	return call_user_func_array( $new_function, $args );
 }
 
@@ -29,7 +29,7 @@ function pmpro_unlock_call_deprecated_function( $old_function, $args ) {
  * Runs on plugins_loaded so every plugin has been included first. Anything already declared
  * by another plugin is skipped.
  *
- * @since TBD
+ * @since 1.3
  */
 function pmpro_unlock_declare_deprecated_functions() {
 	// pmproup_plugin_row_meta is intentionally not declared. PMPro User Pages uses that name, and
@@ -238,7 +238,7 @@ add_action( 'plugins_loaded', 'pmpro_unlock_declare_deprecated_functions' );
 /**
  * Map of new filter names to their deprecated pmproup_ names.
  *
- * @since TBD
+ * @since 1.3
  *
  * @return array New filter name => old filter name.
  */
@@ -256,7 +256,7 @@ function pmpro_unlock_deprecated_filters() {
 /**
  * Run callbacks that are still attached to the old pmproup_ name of the current filter.
  *
- * @since TBD
+ * @since 1.3
  *
  * @param mixed $value The value being filtered.
  * @return mixed The filtered value.
@@ -269,7 +269,7 @@ function pmpro_unlock_apply_deprecated_filter( $value ) {
 	}
 
 	// Only shows a deprecation notice if something is hooked to the old filter.
-	return apply_filters_deprecated( $filters[ $new_filter ], func_get_args(), 'TBD', $new_filter );
+	return apply_filters_deprecated( $filters[ $new_filter ], func_get_args(), '1.3', $new_filter );
 }
 foreach ( array_keys( pmpro_unlock_deprecated_filters() ) as $pmpro_unlock_new_filter ) {
 	// Run early so callbacks on the new filter name get the final say.

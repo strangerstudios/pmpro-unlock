@@ -20,7 +20,7 @@ msgid "Paid Memberships Pro - Unlock Protocol Add On"
 msgstr ""
 
 #. Plugin URI of the plugin
-msgid "https://www.paidmembershipspro.com/TBD"
+msgid "https://www.paidmembershipspro.com/1.3"
 msgstr ""
 
 #. Description of the plugin
