@@ -421,7 +421,7 @@ function pmproup_has_lock_access( $network, $lock, $wallet ) {
 	$ref_wallet = substr( $wallet, -8 );
 
 	$pmproup_transient_name = 'pmproup_has_lock_' . $ref_lock . '_' . $ref_wallet;
-	$transient_expiration = apply_filters( 'pmproup_has_lock_access_transient_expiration', 2 * HOUR_IN_SECONDS ); // 2 hours.
+	$transient_expiration = apply_filters( 'pmproup_has_lock_access_transient_expiration', 30 * MINUTE_IN_SECONDS ); // 30 minutes.
 
 	// Check if the transient is available, if not try to get lock access and cache the results.
 	if ( empty( get_transient( $pmproup_transient_name ) ) ) {
@@ -518,16 +518,21 @@ function pmproup_should_have_access( $user_id, $levels ) {
 		return true;
 	}
 
+	// Get the level's lock settings. If the level no longer has any NFT settings, there is nothing to verify against.
+	$level_lock_options = get_option( 'pmproup_' . $levels, true );
+	if ( empty( $level_lock_options ) || ! is_array( $level_lock_options ) || empty( $level_lock_options['network_rpc'] ) || empty( $level_lock_options['lock_address'] ) ) {
+		return true;
+	}
+
 	// Get the user's wallet so that we can see if they still have the NFT for this level.
 	$wallet = pmproup_try_to_get_wallet( $user_id );
-	
+
 	// If no wallet is found, then we can't confirm that they still have the NFT.
 	if ( empty( $wallet ) ) {
 		return false;
 	}
 
-	// We have a wallet. Let's get the lock address for this level and check if the user has access.
-	$level_lock_options = get_option( 'pmproup_' . $levels, true );
+	// We have a wallet. Check if the user still has access to the lock for this level.
 	return pmproup_has_lock_access( $level_lock_options['network_rpc'], $level_lock_options['lock_address'], $wallet );
 }
 

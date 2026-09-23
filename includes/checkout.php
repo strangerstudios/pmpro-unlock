@@ -148,8 +148,13 @@ add_filter( 'pmpro_registration_checks', 'pmproup_registration_checks' );
  * @param MemberOrder $morder The order object.
  */
 function pmproup_after_checkout( $user_id, $morder ) {
-    // Get the level that was purchased.
-    $level_id = $morder->membership_id;
+    global $pmpro_level;
+
+    // Get the level that was purchased. The order may be empty for free checkouts, so fall back to the checkout level.
+    $level_id = ! empty( $morder->membership_id ) ? $morder->membership_id : ( ! empty( $pmpro_level->id ) ? $pmpro_level->id : 0 );
+    if ( empty( $level_id ) ) {
+        return;
+    }
 
     // Get the level's NFT settings.
     $level_lock_options = get_option( 'pmproup_' . $level_id, true );
@@ -177,6 +182,7 @@ function pmproup_after_checkout( $user_id, $morder ) {
         pmproup_clear_transients( $level_lock_options['lock_address'], $wallet );
     }
 }
+add_action( 'pmpro_after_checkout', 'pmproup_after_checkout', 10, 2 );
 
 /**
  * After a membership level is cancelled, remove the NFT ID from the user's meta.
