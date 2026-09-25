@@ -13,6 +13,10 @@
  * Domain Path:       /languages
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 // Constants
 define( 'PMPRO_UNLOCK_DIR', dirname( __FILE__ ) );
 define( 'PMPRO_UNLOCK_BASENAME', plugin_basename( __FILE__ ) );

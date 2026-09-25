@@ -1,6 +1,10 @@
 <?php
 // All functions relating to checkout.
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Adds functionality to level page to show connect wallet button.
  */
