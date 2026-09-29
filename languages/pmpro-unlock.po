@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Paid Memberships Pro - Unlock Protocol Add On 1.2.2\n"
+"Project-Id-Version: Paid Memberships Pro - Unlock Protocol Add On 1.3.1\n"
 "Report-Msgid-Bugs-To: info@paidmembershipspro.com\n"
 "Last-Translator: Paid Memberships Pro <info@paidmembershipspro.com>\n"
 "Language-Team: Paid Memberships Pro <info@paidmembershipspro.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-23T11:20:36+00:00\n"
+"POT-Creation-Date: 2026-09-29T16:32:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: pmpro-unlock\n"
@@ -47,26 +47,32 @@ msgstr ""
 #: includes/functions.php:182
 #: includes/functions.php:189
 #: includes/functions.php:202
+#: includes/functions.php:206
 msgid "Connect Your Crypto Wallet"
 msgstr ""
 
 #: includes/membership-level-settings.php:33
+#: includes/membership-level-settings.php:37
 msgid "Unlock Protocol Settings"
 msgstr ""
 
 #: includes/membership-level-settings.php:39
+#: includes/membership-level-settings.php:43
 msgid "Choose a Network:"
 msgstr ""
 
 #: includes/membership-level-settings.php:52
+#: includes/membership-level-settings.php:56
 msgid "Lock Address:"
 msgstr ""
 
 #: includes/membership-level-settings.php:55
+#: includes/membership-level-settings.php:59
 msgid "Deploy a lock"
 msgstr ""
 
 #: includes/membership-level-settings.php:59
+#: includes/membership-level-settings.php:63
 msgid "Require NFT to checkout?"
 msgstr ""
 
@@ -86,60 +92,73 @@ msgid "https://www.paidmembershipspro.com/"
 msgstr ""
 
 #: includes/admin.php:24
+#: includes/admin.php:28
 msgid "Thank you for activating the Unlock Protocol Add On."
 msgstr ""
 
 #: includes/admin.php:27
+#: includes/admin.php:31
 msgid "Edit a level to set up Unlock."
 msgstr ""
 
 #: includes/admin.php:48
+#: includes/admin.php:52
 msgid "Level Settings"
 msgstr ""
 
 #: includes/admin.php:66
+#: includes/admin.php:70
 msgid "View Documentation"
 msgstr ""
 
 #: includes/admin.php:66
+#: includes/admin.php:70
 msgid "Docs"
 msgstr ""
 
 #: includes/admin.php:67
+#: includes/admin.php:71
 msgid "Visit Customer Support Forum"
 msgstr ""
 
 #: includes/admin.php:67
+#: includes/admin.php:71
 msgid "Support"
 msgstr ""
 
 #: includes/checkout.php:26
 #: includes/checkout.php:30
+#: includes/checkout.php:34
 msgid "You hold a valid lock, you may claim this membership level for free."
 msgstr ""
 
 #: includes/checkout.php:30
 #: includes/checkout.php:34
+#: includes/checkout.php:38
 msgid "You can purchase this NFT."
 msgstr ""
 
 #: includes/checkout.php:30
 #: includes/checkout.php:34
+#: includes/checkout.php:38
 msgid "Click here to buy the NFT."
 msgstr ""
 
 #: includes/checkout.php:131
 #: includes/checkout.php:135
+#: includes/checkout.php:139
 msgid "You need an NFT to claim this membership"
 msgstr ""
 
 #: includes/functions.php:185
 #: includes/functions.php:198
+#: includes/functions.php:202
 msgid "Log In with Crypto Wallet"
 msgstr ""
 
 #: includes/profile.php:16
 #: includes/profile.php:22
+#: includes/profile.php:26
 #, php-format
 msgid "Your Wallet Address is: %s"
 msgstr ""
