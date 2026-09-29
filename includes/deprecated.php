@@ -8,6 +8,10 @@
  * @since 1.3
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Call the pmpro_unlock_ version of a deprecated pmproup_ function.
  *

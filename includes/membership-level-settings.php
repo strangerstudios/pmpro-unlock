@@ -3,6 +3,10 @@
  * Code to add settings to the edit membership level page and save those settings.
 */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Display Settings for Unlock Protocol Integration.
  */
@@ -12,8 +16,8 @@ function pmpro_unlock_level_settings() {
     $networks = pmpro_unlock_networks_list();
     array_unshift( $networks, array( 'network_name' => '' ) ); // Insert first option as "-" to array.
     
-    if ( isset( $_REQUEST['edit'] ) ) {
-		$level_id = intval( $_REQUEST['edit'] );
+    if ( isset( $_REQUEST['edit'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only, level ID for display on the edit level page.
+		$level_id = intval( $_REQUEST['edit'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only, level ID for display on the edit level page.
     }
 
     // Get level settings and configure variables to be used.
@@ -79,9 +83,11 @@ function pmpro_unlock_save_membership_level( $level_id ) {
 	}
 
     $available_networks = pmpro_unlock_networks_list();
-    $network = sanitize_text_field( $_REQUEST['pmproup-network'] );
-    $lock_address = sanitize_text_field( $_REQUEST['pmproup-lock' ] );
-    $nft_required = sanitize_text_field( $_REQUEST['pmproup-nft-required'] );
+    // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Runs on pmpro_save_membership_level; PMPro verifies the level save nonce and capability first.
+    $network = isset( $_REQUEST['pmproup-network'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['pmproup-network'] ) ) : '';
+    $lock_address = isset( $_REQUEST['pmproup-lock'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['pmproup-lock'] ) ) : '';
+    $nft_required = isset( $_REQUEST['pmproup-nft-required'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['pmproup-nft-required'] ) ) : '';
+    // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
     // Save the entire network details for this lock.
     $pmpro_unlock_settings = array( 'network_name' => $network, 'lock_address' => $lock_address, 'nft_required' => $nft_required );

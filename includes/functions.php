@@ -1,6 +1,10 @@
 <?php
 // Functions go here for now.
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Get the client_id value whenever needed.
  *
@@ -73,7 +77,7 @@ function pmpro_unlock_get_checkout_url( $lock, $redirect_uri ) {
  * @return void
  */
 function pmpro_unlock_validate_auth_code( $code ) {
-	if ( empty( $_REQUEST['state'] ) ) {
+	if ( empty( $_REQUEST['state'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback; the state nonce is verified in pmpro_unlock_verify_state() before a request code is accepted.
 		return false;
 	}
 
@@ -84,7 +88,7 @@ function pmpro_unlock_validate_auth_code( $code ) {
 			'client_id'    => pmpro_unlock_get_client_id(),
 			'redirect_uri' => pmpro_unlock_get_redirect_uri(),
 			'code'         => sanitize_text_field( $code ),
-			'state'		=> sanitize_text_field( $_REQUEST['state'] )
+			'state'		=> sanitize_text_field( wp_unslash( $_REQUEST['state'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback; the state nonce is verified in pmpro_unlock_verify_state() before a request code is accepted.
 		)
 	);
 
@@ -168,18 +172,18 @@ function pmpro_unlock_connect_wallet_button( $state = null ) {
 	global $pmpro_pages;
 
 	if ( is_admin() ) {
-		if ( isset( $_REQUEST['page'] ) && $_REQUEST['page'] == 'pmpro-member' ) {
+		if ( isset( $_REQUEST['page'] ) && $_REQUEST['page'] == 'pmpro-member' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only, used to build the return URL.
 			// We are on the Member Edit page. We need to pass the panel slug to save properly.
 			$redirect_uri = add_query_arg(
 				array(
 					'page'                    => 'pmpro-member',
-					'user_id'                 => empty( $_REQUEST['user_id'] ) ? '' : intval( $_REQUEST['user_id'] ),
+					'user_id'                 => empty( $_REQUEST['user_id'] ) ? '' : intval( $_REQUEST['user_id'] ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only, used to build the return URL.
 					'pmpro_member_edit_panel' => 'pmproup',
 				),
 				admin_url( 'admin.php' )
 			);
 		} else {
-			$redirect_uri = admin_url( basename( $_SERVER['REQUEST_URI'] ) );
+			$redirect_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( admin_url( basename( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) ) : admin_url(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- The full URL is sanitized with esc_url_raw().
 		}
 	} elseif( pmpro_is_checkout() ) {
 		// Get the checkout level.
@@ -310,7 +314,7 @@ function pmpro_unlock_get_auth_code() {
 	$code = '';
 
 	// Let's try to overwrite any session data with REQUEST param stuff.
-	if ( isset( $_REQUEST['code'] ) ) {
+	if ( isset( $_REQUEST['code'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The state nonce is verified below before the code is used.
 		pmpro_unset_session_var( 'pmproup_code' ); // Let's try unset any SESSION data we might have.
 
 		// Only accept a code that came back with the state nonce we issued.
@@ -318,7 +322,7 @@ function pmpro_unlock_get_auth_code() {
 			return '';
 		}
 
-		$code = sanitize_text_field( $_REQUEST['code'] );
+		$code = sanitize_text_field( wp_unslash( $_REQUEST['code'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- State nonce verified by pmpro_unlock_verify_state() above.
 		pmpro_set_session_var( 'pmproup_code', $code );
 	}
 
@@ -342,7 +346,7 @@ function pmpro_unlock_verify_state() {
 		return false;
 	}
 
-	return (bool) wp_verify_nonce( sanitize_text_field( $_REQUEST['state'] ), 'pmproup_state' );
+	return (bool) wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['state'] ) ), 'pmproup_state' ); // phpcs:ignore PluginCheck.Security.VerifyNonce.UnsafeVerifyNonceStatement -- The result is returned; pmpro_unlock_get_auth_code() bails when it is false.
 }
 
 /**

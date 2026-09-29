@@ -3,6 +3,10 @@
  * Login functions for authenticating with wallets.
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 
 /**
  * Add a "Connect Your Crypto Wallet" button to the default login page of WordPress.
