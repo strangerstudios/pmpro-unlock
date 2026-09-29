@@ -50,7 +50,7 @@ add_action( 'pmpro_show_user_profile', 'pmpro_unlock_profile_connect_wallet', 10
  * @since 1.0
  */
 function pmpro_unlock_profile_remove_wallet( $user_id = 0 ) {
-    if ( empty( $_REQUEST['pmpro_unlock_delete_wallet'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Runs inside the profile save (profile_update / Member Edit panel save), after the form's nonce is verified; capability is checked below.
+    if ( empty( $_REQUEST['pmpro_unlock_delete_wallet'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only removes the wallet link when the current user is the user being updated or can edit_user them (checked below).
         return;
     }
 
